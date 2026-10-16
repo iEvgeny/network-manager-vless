@@ -81,7 +81,12 @@ def test_cli_help_builds() -> None:
 
 def test_debian_changelog_matches_version() -> None:
     first = (ROOT / "debian" / "changelog").read_text().splitlines()[0]
-    assert f"({nm_vless.__version__})" in first
+    match = re.search(r"\(([^)]+)\)", first)
+    assert match is not None
+    # Debian's package revision can change without changing the app's upstream version.
+    assert match.group(1) == nm_vless.__version__ or match.group(1).startswith(
+        f"{nm_vless.__version__}-"
+    )
 
 
 def test_translations_are_complete() -> None:

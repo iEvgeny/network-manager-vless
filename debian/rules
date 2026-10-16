@@ -4,6 +4,7 @@ include /usr/share/dpkg/architecture.mk
 
 export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 XRAY_DIR = $(CURDIR)/debian/xray-bundle
+PLASMA_QT_VERSION ?= auto
 
 %:
 	dh $@ --buildsystem=meson
@@ -13,6 +14,7 @@ override_dh_auto_configure:
 	dh_auto_configure -- \
 		-Deditor=enabled \
 		-Dplasma_editor=enabled \
+		-Dplasma_qt_version=$(PLASMA_QT_VERSION) \
 		-Dpython=/usr/bin/python3 \
 		-Dbundled_xray=$(XRAY_DIR)/xray \
 		-Dsysusers_dir=/usr/lib/sysusers.d \
@@ -32,5 +34,5 @@ override_dh_dwz:
 	dh_dwz --exclude=nm-vless/xray
 
 override_dh_installsystemduser:
-	dh_installsystemduser --name=nm-vless-subscriptions nm-vless-subscriptions.timer
-	dh_installsystemduser --name=nm-vless-proxy-guard nm-vless-proxy-guard.service
+	dh_installsystemduser --package=network-manager-vless --name=nm-vless-subscriptions nm-vless-subscriptions.timer
+	dh_installsystemduser --package=network-manager-vless-gnome --name=nm-vless-proxy-guard nm-vless-proxy-guard.service

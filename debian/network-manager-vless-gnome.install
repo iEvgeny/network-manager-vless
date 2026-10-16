@@ -1,0 +1,2 @@
+usr/lib/*/NetworkManager/libnm-gtk4-vpn-plugin-vless-editor.so
+usr/lib/systemd/user/nm-vless-proxy-guard.service

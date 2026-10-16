@@ -12,6 +12,8 @@ option('editor', type: 'feature', value: 'auto',
   description: 'Build the GNOME Settings editor (needs libnm and GTK 4 development files)')
 option('plasma_editor', type: 'feature', value: 'auto',
   description: 'Build the KDE Plasma NetworkManager editor (needs Qt and KDE Frameworks development files)')
+option('plasma_qt_version', type: 'combo', choices: ['auto', '5', '6'], value: 'auto',
+  description: 'Build the Plasma editor for Qt 5, Qt 6, or every detected Qt version')
 option('plasma5_plugin_dir', type: 'string', value: '',
   description: 'KDE Plasma 5 VPN editor plugin directory (default: libdir/qt5/plugins/plasma/network/vpn)')
 option('plasma6_plugin_dir', type: 'string', value: '',

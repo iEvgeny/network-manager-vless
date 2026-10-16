@@ -14,15 +14,20 @@ Build and try the plugin:
 ```sh
 .venv/bin/meson setup build --prefix=/usr
 .venv/bin/meson compile -C build
-build-aux/build-deb.sh                # dist/network-manager-vless_<version>_<arch>.deb
-sudo apt install ./dist/network-manager-vless_*.deb
+build-aux/build-deb.sh                # dist contains core, -gnome and -kde .debs
+# Install the core plus one UI package; choose -gnome or -kde.
+sudo apt install ./dist/network-manager-vless_*.deb ./dist/network-manager-vless-kde_*.deb
 ```
 
-Installing the package is the recommended way to test on a desktop: it puts every file
-where NetworkManager, D-Bus, GNOME Settings and Plasma look for it. The KDE plugin is
-auto-detected for Qt 5/KF5 and Qt 6/KF6; use `-Dplasma_editor=enabled` to require it or
-`-Dplasma_editor=disabled` to skip it. Debian's default build includes the Qt 5/KF5
-plugin for Plasma 5. `build-deb.sh` downloads the Xray-core release pinned in
+Installing the packages is the recommended way to test on a desktop: it puts every file
+where NetworkManager, D-Bus, GNOME Settings and Plasma look for it. Runtime packages are
+split into core, `-gnome` and `-kde`; core only suggests the UIs, so unrelated desktop
+libraries are not installed by default. The KDE plugin is auto-detected for Qt 5/KF5 and
+Qt 6/KF6; use `-Dplasma_qt_version=5` or `=6` to build only one ABI, or leave it at
+`auto` to build every detected ABI. Use `-Dplasma_editor=enabled` to require a plugin or
+`-Dplasma_editor=disabled` to skip it. Debian's default build includes the Qt 5/KF5 plugin
+on Ubuntu 24.04; the Ubuntu 26.04 CI package sets `PLASMA_QT_VERSION=6` for Plasma 6.
+`build-deb.sh` downloads the Xray-core release pinned in
 `build-aux/xray.lock` and refuses it if the checksum does not match; set
 `XRAY_ZIP=/path/to/Xray-linux-64.zip` to build offline.
 
@@ -124,6 +129,22 @@ the connection as failed and removes the device.
 To try changes to the service, reinstall with `sudo meson install -C build`; the next
 connection attempt starts the new code. Do not point the installed `.name` file at a
 user-writable source tree: that code runs as root.
+
+## GitHub Actions and downloadable packages
+
+The `CI` workflow runs automatically on pushes and pull requests. On a push (or a manual
+run) it uploads two 14-day artifacts: `network-manager-vless-deb-ubuntu-24.04-amd64`
+and `network-manager-vless-deb-ubuntu-26.04-amd64`. Each ZIP contains the core `.deb`,
+`network-manager-vless-gnome`, and `network-manager-vless-kde`; the 26.04 build includes
+the Qt 6/KF6 Plasma editor. Pull-request runs validate the build but do not publish
+artifacts.
+
+To start a fresh build in GitHub: **Actions → CI → Run workflow**, then choose a branch.
+The workflow must first be merged into the repository's default branch for the manual
+button to be available. To repeat an existing run instead, open it and choose **Re-run all
+jobs**, or use `gh run rerun <RUN_ID>` from this checkout. Download the ZIP from the
+run's **Artifacts** section. The *Release* workflow is different: a `vX.Y.Z` tag starts a
+public GitHub release, so do not use it just to build a test artifact.
 
 ## Releasing
 

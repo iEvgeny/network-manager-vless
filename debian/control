@@ -23,7 +23,7 @@ Build-Depends:
  python3 (>= 3.11),
  python3-gi,
  gir1.2-nm-1.0,
- python3-pytest,
+ python3-pytest
 Standards-Version: 4.6.2
 Rules-Requires-Root: no
 
@@ -37,16 +37,39 @@ Depends:
  python3-gi,
  gir1.2-nm-1.0,
  util-linux,
- systemd | systemd-standalone-sysusers | systemd-sysusers,
-Recommends: gnome-control-center | plasma-nm
-Description: NetworkManager VPN plugin for VLESS (Xray)
- Adds VLESS connections to NetworkManager. Connections can be added and edited
- in GNOME Settings or KDE Plasma's NetworkManager editor, switched from the
- desktop network menu and controlled with nmcli.
+ systemd | systemd-standalone-sysusers | systemd-sysusers
+Suggests: network-manager-vless-gnome, network-manager-vless-kde
+Description: NetworkManager VPN plugin for VLESS (Xray) - core service
+ Adds VLESS connections to NetworkManager. This package contains the VPN service,
+ command-line tools, subscription updater and shared integration files.
  .
- Supports TCP (with XTLS Vision), XHTTP, WebSocket, HTTPUpgrade and gRPC with
- TLS or REALITY, a full tunnel for IPv4 and IPv6, import of vless:// links and
- automatically updated subscriptions.
+ Install network-manager-vless-gnome for the GNOME Settings editor or
+ network-manager-vless-kde for the KDE Plasma NetworkManager editor.
  .
  The package includes a verified build of Xray-core, which runs as an
  unprivileged user.
+
+Package: network-manager-vless-gnome
+Architecture: amd64 arm64
+Depends:
+ ${shlibs:Depends},
+ ${misc:Depends},
+ network-manager-vless (= ${binary:Version})
+Breaks: network-manager-vless (<< ${binary:Version})
+Replaces: network-manager-vless (<< ${binary:Version})
+Description: GNOME Settings editor for NetworkManager VLESS connections
+ GTK 4 VPN connection editor for GNOME Settings, including the VLESS link
+ import interface and the GNOME proxy-guard user service.
+
+Package: network-manager-vless-kde
+Architecture: amd64 arm64
+Depends:
+ ${shlibs:Depends},
+ ${misc:Depends},
+ network-manager-vless (= ${binary:Version}),
+ plasma-nm
+Breaks: network-manager-vless (<< ${binary:Version})
+Replaces: network-manager-vless (<< ${binary:Version})
+Description: KDE Plasma editor for NetworkManager VLESS connections
+ Native Qt/KDE Frameworks VPN connection editor for Plasma's NetworkManager
+ integration, including VLESS link and subscription import.

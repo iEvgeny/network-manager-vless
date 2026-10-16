@@ -1,8 +1,8 @@
 #!/bin/sh
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
-# Build the Debian/Ubuntu package from a clean copy of the source tree and put
-# the result into dist/.
+# Build the Debian/Ubuntu binary packages from a clean copy of the source tree
+# and put the core and optional desktop-editor packages into dist/.
 #
 #   sudo apt build-dep ./        # once: install the build dependencies
 #   build-aux/build-deb.sh
@@ -22,7 +22,10 @@ tar -C "$src" \
     --exclude=./.git --exclude=./.venv --exclude=./build --exclude=./stage \
     --exclude=./dist --exclude=./obj-* --exclude=__pycache__ --exclude=.pytest_cache \
     --exclude=.mypy_cache --exclude=.ruff_cache \
-    --exclude=./debian/xray-bundle --exclude=./debian/network-manager-vless \
+    --exclude=./debian/xray-bundle \
+    --exclude=./debian/network-manager-vless \
+    --exclude=./debian/network-manager-vless-gnome \
+    --exclude=./debian/network-manager-vless-kde \
     -cf - . | tar -C "$tree" -xf -
 
 (cd "$tree" && dpkg-buildpackage --build=binary --unsigned-source --unsigned-changes "$@")

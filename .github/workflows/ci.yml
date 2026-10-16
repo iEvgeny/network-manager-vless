@@ -3,6 +3,7 @@ name: CI
 on:
   push:
   pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -43,14 +44,63 @@ jobs:
           grep -q '^\[libnm\]' stage/usr/lib/NetworkManager/VPN/nm-vless-service.name
           find stage/usr/lib -path '*/qt5/plugins/plasma/network/vpn/libplasmanetworkmanagement_vlessui_qt5.so' -print -quit | grep -q .
 
-      - name: Build Debian package for download
-        if: github.event_name == 'push' && !startsWith(github.ref, 'refs/tags/')
+      - name: Build Debian packages for download (Ubuntu 24.04)
+        if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && !startsWith(github.ref, 'refs/tags/')
         run: build-aux/build-deb.sh
 
+      - name: Check Debian package split and Plasma 5 plugin
+        if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && !startsWith(github.ref, 'refs/tags/')
+        run: |
+          core=$(find dist -maxdepth 1 -name 'network-manager-vless_*.deb' -print -quit)
+          gnome=$(find dist -maxdepth 1 -name 'network-manager-vless-gnome_*.deb' -print -quit)
+          kde=$(find dist -maxdepth 1 -name 'network-manager-vless-kde_*.deb' -print -quit)
+          test -n "$core" && test -n "$gnome" && test -n "$kde"
+          dpkg-deb --contents "$core" | grep -q 'NetworkManager/libnm-vpn-plugin-vless.so$'
+          ! dpkg-deb --contents "$core" | grep -q 'libnm-gtk4-vpn-plugin-vless-editor.so'
+          ! dpkg-deb --contents "$core" | grep -q 'nm-vless-proxy-guard.service'
+          dpkg-deb --contents "$gnome" | grep -q 'libnm-gtk4-vpn-plugin-vless-editor.so$'
+          dpkg-deb --contents "$gnome" | grep -q 'nm-vless-proxy-guard.service$'
+          dpkg-deb --contents "$kde" | grep -q 'qt5/plugins/plasma/network/vpn/libplasmanetworkmanagement_vlessui_qt5.so$'
+
       - uses: actions/upload-artifact@v4
-        if: github.event_name == 'push' && !startsWith(github.ref, 'refs/tags/')
+        if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && !startsWith(github.ref, 'refs/tags/')
         with:
           name: network-manager-vless-deb-ubuntu-24.04-amd64
+          path: dist/*.deb
+          if-no-files-found: error
+          retention-days: 14
+
+  package-26-04:
+    name: Package for Ubuntu 26.04 (Plasma 6)
+    needs: check
+    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && !startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-26.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get build-dep -y .
+          sudo apt-get install --no-install-recommends -y \
+            qt6-base-dev \
+            libkf6coreaddons-dev \
+            libkf6i18n-dev \
+            libkf6networkmanagerqt-dev \
+            libkf6widgetsaddons-dev
+
+      - name: Build Debian packages
+        run: PLASMA_QT_VERSION=6 build-aux/build-deb.sh
+
+      - name: Check Plasma 6 package contents
+        run: |
+          kde=$(find dist -maxdepth 1 -name 'network-manager-vless-kde_*.deb' -print -quit)
+          test -n "$kde"
+          dpkg-deb --contents "$kde" | grep -q 'qt6/plugins/plasma/network/vpn/libplasmanetworkmanagement_vlessui_qt6.so$'
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: network-manager-vless-deb-ubuntu-26.04-amd64
           path: dist/*.deb
           if-no-files-found: error
           retention-days: 14

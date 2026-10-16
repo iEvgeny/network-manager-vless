@@ -36,26 +36,40 @@ for any other VPN.
   KDE Plasma's proxy settings.
 - Automatic restart of Xray-core if it exits while connected.
 - Subscriptions with automatic updates that keep your per-connection changes.
-- **One package**: Xray-core is included, verified against the upstream checksum.
+- **Optional desktop editors**: the core service, GNOME editor and KDE Plasma editor are
+  separate packages, so install only the desktop integration you use. Xray-core is bundled
+  with the core package and verified against the upstream checksum.
 - Privilege separation: Xray runs as an unprivileged user with no capabilities.
   Credentials are stored by NetworkManager and never written to logs.
 
 ## Installation
 
-Download the package for your architecture from the
-[latest release](../../releases/latest) (`amd64` for most PCs, `arm64` for ARM
-devices) and open it: on Ubuntu, double-clicking a `.deb` opens it in App Center.
-Alternatively, install it from a terminal, which also installs the dependencies:
+Download the core package and, if you want a desktop editor, the matching UI package
+from the [latest release](../../releases/latest). Choose the pair for your architecture
+(`amd64` for most PCs, `arm64` for ARM devices):
 
 ```sh
-sudo apt install ./network-manager-vless_0.5.0_amd64.deb
+# GNOME Settings
+sudo apt install ./network-manager-vless_0.5.0-1_amd64.deb \
+                 ./network-manager-vless-gnome_0.5.0-1_amd64.deb
+
+# Or KDE Plasma (the Ubuntu 24.04 release package is for Plasma 5 / Qt 5)
+sudo apt install ./network-manager-vless_0.5.0-1_amd64.deb \
+                 ./network-manager-vless-kde_0.5.0-1_amd64.deb
 ```
+
+Install just `network-manager-vless` for the VPN service and command-line tools without
+any desktop editor. The UI packages are optional `Suggests`, not `Recommends`, so installing
+the core does not pull in GNOME or KDE components. Installing a UI package also installs
+the core and its runtime dependencies. The GNOME package additionally installs the GNOME-only
+proxy-guard user service.
 
 That is all: NetworkManager picks up the VPN service immediately, no reboot or
 configuration is needed. Supported: Ubuntu 24.04 or newer and other distributions with
-NetworkManager 1.24+ and Python 3.11+. GNOME Settings editing needs GTK 4.6+; KDE Plasma
-editing needs `plasma-nm` and the matching Qt/KDE Frameworks plugin (the Ubuntu 24.04
-package includes the Plasma 5/Qt 5 editor; source builds also detect Plasma 6/Qt 6).
+NetworkManager 1.24+ and Python 3.11+. The GNOME package needs GTK 4.6+; the KDE package
+needs `plasma-nm` and the matching Qt/KDE Frameworks runtime. The 24.04 package uses the
+Plasma 5/Qt 5 plugin; the 26.04 CI artifact contains the Qt 6/KF6-only plugin for Plasma 6.
+CI artifacts are built separately for Ubuntu 24.04 and 26.04.
 
 If GNOME Settings or the Plasma Network Connections editor was open during installation
 or update, close and reopen it so it loads the new editor plugin. GNOME Settings may stay

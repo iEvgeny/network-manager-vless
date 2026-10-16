@@ -72,53 +72,57 @@ endif
 
 build_plasma5_editor = false
 build_plasma6_editor = false
+plasma_qt_version = get_option('plasma_qt_version')
 if have_plasma_cpp and have_plasma_c
   libnm_plasma_dep = dependency('libnm', version: '>= 1.24', required: false)
-
-  qt5_widgets_dep = dependency('Qt5Widgets', version: '>= 5.15', required: false)
-  # Meson's CMake probe enables the host CMake policy version. KF5 5.115's
-  # generated QCH exports set read-only target properties under CMP0160.
   # CMAKE_PROJECT_INCLUDE is blacklisted by Meson, so use its project-specific
-  # equivalent for Meson's generated CMake project (MesonTemp).
+  # equivalent for Meson's generated CMake project (MesonTemp). This also keeps
+  # KF5/KF6 generated QCH exports compatible with CMake's CMP0160 policy.
   cmake_policy_include = meson.project_source_root() / 'build-aux' / 'meson-cmake-policy.cmake'
   kf_cmake_args = ['-DCMAKE_PROJECT_MesonTemp_INCLUDE_BEFORE=' + cmake_policy_include]
-  kf5_coreaddons_dep = dependency(
-    'KF5CoreAddons', method: 'cmake', modules: 'KF5::CoreAddons',
-    cmake_args: kf_cmake_args, required: false)
-  kf5_i18n_dep = dependency(
-    'KF5I18n', method: 'cmake', modules: 'KF5::I18n',
-    cmake_args: kf_cmake_args, required: false)
-  kf5_networkmanagerqt_dep = dependency(
-    'KF5NetworkManagerQt', method: 'cmake', modules: 'KF5::NetworkManagerQt',
-    cmake_args: kf_cmake_args, required: false)
-  kf5_widgetsaddons_dep = dependency(
-    'KF5WidgetsAddons', method: 'cmake', modules: 'KF5::WidgetsAddons',
-    cmake_args: kf_cmake_args, required: false)
-  build_plasma5_editor = (libnm_plasma_dep.found() and qt5_widgets_dep.found()
-    and kf5_coreaddons_dep.found() and kf5_i18n_dep.found()
-    and kf5_networkmanagerqt_dep.found() and kf5_widgetsaddons_dep.found())
 
-  qt6_widgets_dep = dependency('Qt6Widgets', version: '>= 6.4', required: false)
-  kf6_coreaddons_dep = dependency(
-    'KF6CoreAddons', method: 'cmake', modules: 'KF6::CoreAddons',
-    cmake_args: kf_cmake_args, required: false)
-  kf6_i18n_dep = dependency(
-    'KF6I18n', method: 'cmake', modules: 'KF6::I18n',
-    cmake_args: kf_cmake_args, required: false)
-  kf6_networkmanagerqt_dep = dependency(
-    'KF6NetworkManagerQt', method: 'cmake', modules: 'KF6::NetworkManagerQt',
-    cmake_args: kf_cmake_args, required: false)
-  kf6_widgetsaddons_dep = dependency(
-    'KF6WidgetsAddons', method: 'cmake', modules: 'KF6::WidgetsAddons',
-    cmake_args: kf_cmake_args, required: false)
-  build_plasma6_editor = (libnm_plasma_dep.found() and qt6_widgets_dep.found()
-    and kf6_coreaddons_dep.found() and kf6_i18n_dep.found()
-    and kf6_networkmanagerqt_dep.found() and kf6_widgetsaddons_dep.found())
+  if plasma_qt_version != '6'
+    qt5_widgets_dep = dependency('Qt5Widgets', version: '>= 5.15', required: false)
+    kf5_coreaddons_dep = dependency(
+      'KF5CoreAddons', method: 'cmake', modules: 'KF5::CoreAddons',
+      cmake_args: kf_cmake_args, required: false)
+    kf5_i18n_dep = dependency(
+      'KF5I18n', method: 'cmake', modules: 'KF5::I18n',
+      cmake_args: kf_cmake_args, required: false)
+    kf5_networkmanagerqt_dep = dependency(
+      'KF5NetworkManagerQt', method: 'cmake', modules: 'KF5::NetworkManagerQt',
+      cmake_args: kf_cmake_args, required: false)
+    kf5_widgetsaddons_dep = dependency(
+      'KF5WidgetsAddons', method: 'cmake', modules: 'KF5::WidgetsAddons',
+      cmake_args: kf_cmake_args, required: false)
+    build_plasma5_editor = (libnm_plasma_dep.found() and qt5_widgets_dep.found()
+      and kf5_coreaddons_dep.found() and kf5_i18n_dep.found()
+      and kf5_networkmanagerqt_dep.found() and kf5_widgetsaddons_dep.found())
+  endif
+
+  if plasma_qt_version != '5'
+    qt6_widgets_dep = dependency('Qt6Widgets', version: '>= 6.4', required: false)
+    kf6_coreaddons_dep = dependency(
+      'KF6CoreAddons', method: 'cmake', modules: 'KF6::CoreAddons',
+      cmake_args: kf_cmake_args, required: false)
+    kf6_i18n_dep = dependency(
+      'KF6I18n', method: 'cmake', modules: 'KF6::I18n',
+      cmake_args: kf_cmake_args, required: false)
+    kf6_networkmanagerqt_dep = dependency(
+      'KF6NetworkManagerQt', method: 'cmake', modules: 'KF6::NetworkManagerQt',
+      cmake_args: kf_cmake_args, required: false)
+    kf6_widgetsaddons_dep = dependency(
+      'KF6WidgetsAddons', method: 'cmake', modules: 'KF6::WidgetsAddons',
+      cmake_args: kf_cmake_args, required: false)
+    build_plasma6_editor = (libnm_plasma_dep.found() and qt6_widgets_dep.found()
+      and kf6_coreaddons_dep.found() and kf6_i18n_dep.found()
+      and kf6_networkmanagerqt_dep.found() and kf6_widgetsaddons_dep.found())
+  endif
 endif
 
 build_plasma_editor = build_plasma5_editor or build_plasma6_editor
 if plasma_editor_opt.enabled() and not build_plasma_editor
-  error('KDE Plasma editor requested but Qt 5/6, libnm and matching KDE Frameworks development files were not found')
+  error('KDE Plasma editor requested but the selected Qt version, libnm and matching KDE Frameworks development files were not found')
 endif
 if build_plasma_editor
   subdir('src/kde')

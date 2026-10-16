@@ -27,8 +27,9 @@ jobs:
 
       - name: Check that the tag matches the package version
         run: |
-          version=$(dpkg-parsechangelog --show-field Version)
-          test "v$version" = "$GITHUB_REF_NAME"
+          package_version=$(dpkg-parsechangelog --show-field Version)
+          upstream_version=${package_version%-*}
+          test "v$upstream_version" = "$GITHUB_REF_NAME"
 
       - name: Build the package
         run: build-aux/build-deb.sh

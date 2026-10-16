@@ -1,3 +1,11 @@
+network-manager-vless (0.5.0-1) unstable; urgency=medium
+
+  * Split the binary packages into a desktop-independent core and optional GNOME
+    and KDE Plasma editors.
+  * Build a Qt 6/KF6-only Plasma editor package on Ubuntu 26.04.
+
+ -- Sevan A. <42666637+s11va9@users.noreply.github.com>  Fri, 16 Oct 2026 15:00:00 +0300
+
 network-manager-vless (0.5.0) unstable; urgency=medium
 
   * Turn off another client's local system proxy while VLESS is connected
