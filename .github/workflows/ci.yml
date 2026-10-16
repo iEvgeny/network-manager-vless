@@ -24,7 +24,7 @@ jobs:
 
       - name: Build
         run: |
-          .venv/bin/meson setup build --prefix=/usr -Deditor=enabled
+          .venv/bin/meson setup build --prefix=/usr -Deditor=enabled -Dplasma_editor=enabled
           .venv/bin/meson compile -C build
 
       - name: Test (editor on a headless Broadway display, pinned Xray-core)
@@ -41,3 +41,4 @@ jobs:
           .venv/bin/meson install -C build --destdir "$PWD/stage"
           test -x stage/usr/libexec/nm-vless-service
           grep -q '^\[libnm\]' stage/usr/lib/NetworkManager/VPN/nm-vless-service.name
+          find stage/usr/lib -path '*/qt5/plugins/plasma/network/vpn/libplasmanetworkmanagement_vlessui_qt5.so' -print -quit | grep -q .

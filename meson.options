@@ -10,6 +10,12 @@ option('systemd_user_unit_dir', type: 'string', value: '',
   description: 'systemd user unit directory (default: from systemd, else /usr/lib/systemd/user)')
 option('editor', type: 'feature', value: 'auto',
   description: 'Build the GNOME Settings editor (needs libnm and GTK 4 development files)')
+option('plasma_editor', type: 'feature', value: 'auto',
+  description: 'Build the KDE Plasma NetworkManager editor (needs Qt and KDE Frameworks development files)')
+option('plasma5_plugin_dir', type: 'string', value: '',
+  description: 'KDE Plasma 5 VPN editor plugin directory (default: libdir/qt5/plugins/plasma/network/vpn)')
+option('plasma6_plugin_dir', type: 'string', value: '',
+  description: 'KDE Plasma 6 VPN editor plugin directory (default: libdir/qt6/plugins/plasma/network/vpn)')
 option('bundled_xray', type: 'string', value: '',
   description: 'Path of a verified xray binary to install as libexecdir/nm-vless/xray (used by packages)')
 option('docdir', type: 'string', value: '',

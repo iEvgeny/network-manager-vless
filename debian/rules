@@ -12,6 +12,7 @@ override_dh_auto_configure:
 	build-aux/fetch-xray.sh $(DEB_HOST_ARCH) $(XRAY_DIR)
 	dh_auto_configure -- \
 		-Deditor=enabled \
+		-Dplasma_editor=enabled \
 		-Dpython=/usr/bin/python3 \
 		-Dbundled_xray=$(XRAY_DIR)/xray \
 		-Dsysusers_dir=/usr/lib/sysusers.d \

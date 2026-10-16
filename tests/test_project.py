@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import configparser
+import json
 import re
 from pathlib import Path
 
@@ -36,13 +37,36 @@ def test_plugin_name_file() -> None:
     assert parser["GNOME"]["supports-external-ui-mode"] == "true"
 
 
+def test_kde_plasma_plugin_metadata() -> None:
+    metadata = json.loads((ROOT / "src/kde/plasmanetworkmanagement_vlessui.json").read_text())
+    assert metadata["KPlugin"]["Name"] == "VLESS (Xray)"
+    assert metadata["KPlugin"]["Version"] == nm_vless.__version__
+    assert metadata["X-NetworkManager-Services"] == nm_vless.SERVICE_TYPE
+    assert (
+        "option('plasma_editor', type: 'feature', value: 'auto'"
+        in (ROOT / "meson.options").read_text()
+    )
+    kde_meson = (ROOT / "src/kde/meson.build").read_text()
+    assert "plasmanetworkmanagement_vlessui_qt5" in kde_meson
+    assert "plasmanetworkmanagement_vlessui_qt6" in kde_meson
+
+
 def test_dbus_policy_matches_service() -> None:
-    policy = (ROOT / "data" / "nm-vless-service.conf").read_text()
+    policy = (ROOT / "data/nm-vless-service.conf").read_text()
     assert f'own_prefix="{nm_vless.SERVICE_TYPE}"' in policy
 
 
 def test_every_source_file_has_spdx_header() -> None:
-    files = [*ROOT.glob("src/**/*.py"), *ROOT.glob("tests/*.py"), *ROOT.glob("src/*.in")]
+    files = [
+        *ROOT.glob("src/**/*.py"),
+        *ROOT.glob("src/**/*.c"),
+        *ROOT.glob("src/**/*.h"),
+        *ROOT.glob("src/**/*.cpp"),
+        *ROOT.glob("tests/*.py"),
+        *ROOT.glob("src/*.in"),
+    ]
+    # These declarations are vendored from plasma-nm and retain their upstream LGPL terms.
+    files = [f for f in files if "plasma-nm" not in f.parts]
     missing = [
         f.name for f in files if "SPDX-License-Identifier: GPL-2.0-or-later" not in f.read_text()
     ]

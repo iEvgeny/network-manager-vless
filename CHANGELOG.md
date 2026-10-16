@@ -6,6 +6,13 @@ and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Added
+
+- KDE Plasma NetworkManager integration: VLESS (Xray) now appears in the Plasma VPN
+  connection editor and can be created, edited, imported from a link, and used with
+  subscriptions. The Qt editor is built for Plasma 5 and/or 6 when the matching KDE
+  Frameworks development files are available.
+
 ## [0.5.0] - 2026-10-03
 
 ### Added

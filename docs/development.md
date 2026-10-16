@@ -19,9 +19,12 @@ sudo apt install ./dist/network-manager-vless_*.deb
 ```
 
 Installing the package is the recommended way to test on a desktop: it puts every file
-where NetworkManager, D-Bus and GNOME Settings look for it. `build-deb.sh` downloads
-the Xray-core release pinned in `build-aux/xray.lock` and refuses it if the checksum
-does not match; set `XRAY_ZIP=/path/to/Xray-linux-64.zip` to build offline.
+where NetworkManager, D-Bus, GNOME Settings and Plasma look for it. The KDE plugin is
+auto-detected for Qt 5/KF5 and Qt 6/KF6; use `-Dplasma_editor=enabled` to require it or
+`-Dplasma_editor=disabled` to skip it. Debian's default build includes the Qt 5/KF5
+plugin for Plasma 5. `build-deb.sh` downloads the Xray-core release pinned in
+`build-aux/xray.lock` and refuses it if the checksum does not match; set
+`XRAY_ZIP=/path/to/Xray-linux-64.zip` to build offline.
 
 ## Tests
 
@@ -58,8 +61,12 @@ src/editor/         GNOME Settings plugins (C, GTK 4)
   nm-vless-editor.c          NMVpnEditor: the settings page
   nm-vless-dialog.ui         its layout (GtkBuilder, compiled into GResource)
   nm-vless-common.[ch]       keys and "nm-vless parse-link" helper
-po/                 translations of the editor
-debian/             Debian/Ubuntu packaging
+src/kde/             KDE Plasma NetworkManager editor (Qt 5/KF5 and Qt 6/KF6)
+  vlessplugin.*       plugin factory and VPN link/file import
+  vlesssettingwidget.*   connection editor and authentication prompt
+  plasma-nm/          vendored Plasma NM editor ABI declarations
+po/                   translations of the GNOME and KDE editors
+debian/               Debian/Ubuntu packaging
 build-aux/          fetch-xray.sh, xray.lock, build-deb.sh, release-notes.sh
 src/nm_vless/
   link.py          vless:// parsing and formatting, VlessServer validation

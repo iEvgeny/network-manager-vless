@@ -6,9 +6,15 @@ Build-Depends:
  debhelper-compat (= 13),
  meson (>= 1.1),
  ninja-build,
+ cmake,
  pkgconf,
  libnm-dev (>= 1.24),
  libgtk-4-dev (>= 4.6),
+ qtbase5-dev,
+ libkf5coreaddons-dev,
+ libkf5i18n-dev,
+ libkf5networkmanagerqt-dev,
+ libkf5widgetsaddons-dev,
  libglib2.0-dev (>= 2.70),
  gettext,
  curl,
@@ -32,11 +38,11 @@ Depends:
  gir1.2-nm-1.0,
  util-linux,
  systemd | systemd-standalone-sysusers | systemd-sysusers,
-Recommends: gnome-control-center
+Recommends: gnome-control-center | plasma-nm
 Description: NetworkManager VPN plugin for VLESS (Xray)
- Adds VLESS connections to NetworkManager. Servers appear in GNOME Settings
- and in the Quick Settings menu like any other VPN and can be controlled with
- nmcli.
+ Adds VLESS connections to NetworkManager. Connections can be added and edited
+ in GNOME Settings or KDE Plasma's NetworkManager editor, switched from the
+ desktop network menu and controlled with nmcli.
  .
  Supports TCP (with XTLS Vision), XHTTP, WebSocket, HTTPUpgrade and gRPC with
  TLS or REALITY, a full tunnel for IPv4 and IPv6, import of vless:// links and

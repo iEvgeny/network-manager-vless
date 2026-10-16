@@ -283,3 +283,247 @@ msgid ""
 msgstr ""
 "Системный прокси {proxy} принадлежит другому VPN-клиенту, и трафик шёл бы "
 "мимо VLESS. Он снова включится, когда VLESS отключится."
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "TLS"
+msgstr "TLS"
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "REALITY"
+msgstr "REALITY"
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "Chrome"
+msgstr "Chrome"
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "Firefox"
+msgstr "Firefox"
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "Safari"
+msgstr "Safari"
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "iOS"
+msgstr "iOS"
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "Android"
+msgstr "Android"
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "Edge"
+msgstr "Edge"
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "360"
+msgstr "360"
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "QQ"
+msgstr "QQ"
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "XTLS Vision"
+msgstr "XTLS Vision"
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "TCP"
+msgstr "TCP"
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "XHTTP"
+msgstr "XHTTP"
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "WebSocket"
+msgstr "WebSocket"
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "HTTPUpgrade"
+msgstr "HTTPUpgrade"
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "gRPC"
+msgstr "gRPC"
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "gun"
+msgstr "gun"
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "multi"
+msgstr "multi"
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "auto"
+msgstr "auto"
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "packet-up"
+msgstr "packet-up"
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "stream-up"
+msgstr "stream-up"
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "stream-one"
+msgstr "stream-one"
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "Connection"
+msgstr "Подключение"
+
+#: src/kde/vlessplugin.cpp
+msgid "Cannot read the file: %1"
+msgstr "Не удалось прочитать файл: %1"
+
+#: src/kde/vlessplugin.cpp
+msgid "The file is too large or is not valid UTF-8."
+msgstr "Файл слишком велик или содержит некорректный UTF-8."
+
+#: src/kde/vlessplugin.cpp
+msgid "Cannot use this link: %1"
+msgstr "Не удалось использовать ссылку: %1"
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "Server address"
+msgstr "Адрес сервера"
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "Port"
+msgstr "Порт"
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "UUID or VLESS user ID"
+msgstr "UUID или ID пользователя VLESS"
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "Server name (SNI)"
+msgstr "Имя сервера (SNI)"
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "TLS fingerprint"
+msgstr "Отпечаток TLS"
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "ALPN"
+msgstr "ALPN"
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "Flow"
+msgstr "Поток"
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "REALITY public key"
+msgstr "Открытый ключ REALITY"
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "REALITY short ID"
+msgstr "Короткий ID REALITY"
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "REALITY spider X"
+msgstr "Spider X REALITY"
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "Network"
+msgstr "Сеть"
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "Path"
+msgstr "Путь"
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "Same as the server address"
+msgstr "Как адрес сервера"
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "HTTP host"
+msgstr "HTTP-хост"
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "gRPC service name"
+msgstr "Имя сервиса gRPC"
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "gRPC mode"
+msgstr "Режим gRPC"
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "XHTTP mode"
+msgstr "Режим XHTTP"
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "JSON object (optional)"
+msgstr "Объект JSON (необязательно)"
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "XHTTP extra settings"
+msgstr "Дополнительные параметры XHTTP"
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "Tunnel"
+msgstr "Туннель"
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "Encryption"
+msgstr "Шифрование"
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "MTU"
+msgstr "MTU"
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "IPv4 DNS servers"
+msgstr "DNS-серверы IPv4"
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "IPv6 DNS servers"
+msgstr "DNS-серверы IPv6"
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "Route IPv6 through the tunnel"
+msgstr "Направлять IPv6 через туннель"
+
+#: src/kde/vlessplugin.cpp
+msgid "Invalid VLESS link."
+msgstr "Недопустимая ссылка VLESS."
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "Enter the VLESS user ID to authenticate this VPN connection."
+msgstr "Введите ID пользователя VLESS для аутентификации этого VPN-подключения."
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "Cannot start nm-vless. Check that it is installed."
+msgstr "Не удалось запустить nm-vless. Убедитесь, что программа установлена."
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "nm-vless exited with status %1."
+msgstr "nm-vless завершился с кодом %1."
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "The link did not contain VLESS settings."
+msgstr "Ссылка не содержит настроек VLESS."
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "Invalid subscription response."
+msgstr "Недопустимый ответ подписки."
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "Cannot add the subscription: %1"
+msgstr "Не удалось добавить подписку: %1"
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "Filled in from “%1”."
+msgstr "Заполнено из «%1»."
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "Subscription “%1” added: one server is now in the VPN list and will be updated automatically. You can close this dialog."
+msgstr "Подписка «%1» добавлена: сервер уже появился в списке VPN и будет обновляться автоматически. Это окно можно закрыть."
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "Subscription “%1” added: %2 servers are now in the VPN list and will be updated automatically. You can close this dialog."
+msgstr "Подписка «%1» добавлена: %2 серверов уже в списке VPN и будут обновляться автоматически. Это окно можно закрыть."

@@ -1,0 +1,17 @@
+{
+    "KPlugin": {
+        "Authors": [
+            {
+                "Name": "NetworkManager-vless contributors"
+            }
+        ],
+        "Description": "Configure VLESS (Xray) VPN connections",
+        "EnabledByDefault": true,
+        "Id": "plasmanetworkmanagement_vlessui",
+        "License": "GPL-2.0-or-later",
+        "Name": "VLESS (Xray)",
+        "Version": "0.5.0",
+        "Website": "https://github.com/iEvgeny/network-manager-vless"
+    },
+    "X-NetworkManager-Services": "org.freedesktop.NetworkManager.vless"
+}

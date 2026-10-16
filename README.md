@@ -8,9 +8,10 @@
 A [NetworkManager](https://networkmanager.dev/) VPN plugin for **VLESS** connections,
 powered by [Xray-core](https://github.com/XTLS/Xray-core).
 
-VLESS servers become ordinary VPN connections: add them in GNOME Settings, switch them
-on and off in Quick Settings next to Wi-Fi and control them with `nmcli`. Routes, DNS
-and reconnects are handled by NetworkManager like for any other VPN.
+VLESS servers become ordinary NetworkManager VPN connections: add them in GNOME Settings
+or KDE Plasma's NetworkManager editor, switch them from the desktop network menu and
+control them with `nmcli`. Routes, DNS and reconnects are handled by NetworkManager like
+for any other VPN.
 
 **[Download the latest release](../../releases/latest)** · [Installation](#installation) ·
 [Русская версия](README.ru.md)
@@ -22,14 +23,17 @@ and reconnects are handled by NetworkManager like for any other VPN.
 
 ## Features
 
-- **GNOME Settings integration**: "VLESS (Xray)" in the Add VPN dialog, an editor for
-  every setting and "fill in from a `vless://` link". English and Russian interface.
+- **Desktop integration**: "VLESS (Xray)" in GNOME Settings and KDE Plasma's Add VPN
+  dialog, with editors for every setting. Import a `vless://` link or an HTTPS
+  subscription. The GNOME interface is GTK 4; KDE Plasma uses its native Qt editor.
 - VLESS over TCP (with XTLS Vision), XHTTP, WebSocket, HTTPUpgrade and gRPC; TLS and
   REALITY.
 - Full tunnel for IPv4 and IPv6 through a TUN device, DNS inside the tunnel without
   leaks through the physical network. The tunnel's routes win over other VPN clients'
-  default routes, and another client's local system proxy is turned off while VLESS
-  is connected, so browsers, terminals and other applications all use the tunnel.
+  default routes.
+- On GNOME, another client's local system proxy is turned off while VLESS is connected,
+  so browsers and other applications use the tunnel. This proxy guard does not manage
+  KDE Plasma's proxy settings.
 - Automatic restart of Xray-core if it exits while connected.
 - Subscriptions with automatic updates that keep your per-connection changes.
 - **One package**: Xray-core is included, verified against the upstream checksum.
@@ -47,14 +51,15 @@ Alternatively, install it from a terminal, which also installs the dependencies:
 sudo apt install ./network-manager-vless_0.5.0_amd64.deb
 ```
 
-That is all: NetworkManager picks up the plugin immediately, no reboot or
+That is all: NetworkManager picks up the VPN service immediately, no reboot or
 configuration is needed. Supported: Ubuntu 24.04 or newer and other distributions with
-NetworkManager 1.24+, GTK 4.6+ and Python 3.11+.
+NetworkManager 1.24+ and Python 3.11+. GNOME Settings editing needs GTK 4.6+; KDE Plasma
+editing needs `plasma-nm` and the matching Qt/KDE Frameworks plugin (the Ubuntu 24.04
+package includes the Plasma 5/Qt 5 editor; source builds also detect Plasma 6/Qt 6).
 
-If GNOME Settings was running during an installation or update, restart it: it keeps the
-previously loaded plugin in memory (also in the background, for the search in the
-Activities overview). `pkill -x gnome-control-c` stops it; the next start loads the new
-version.
+If GNOME Settings or the Plasma Network Connections editor was open during installation
+or update, close and reopen it so it loads the new editor plugin. GNOME Settings may stay
+in the background; `pkill -x gnome-control-c` stops it.
 
 To remove it: `sudo apt remove network-manager-vless`.
 
@@ -76,6 +81,19 @@ and is kept up to date automatically; close the Add VPN dialog afterwards.
 
 A text file containing a link can also be imported with **Import from file…** in the
 Add VPN dialog.
+
+### KDE Plasma
+
+1. Open **System Settings → Network → Connections**, or choose **Configure Network
+   Connections** from the network widget.
+2. Click **Add New Connection → VPN → VLESS (Xray)**.
+3. Paste a `vless://` link into **Import from link** and click **Fill In**, or enter the
+   server details in the tabs. Give the connection a name and save it.
+
+You can also import a `.vless` or `.txt` file containing a link. Paste an `https://`
+subscription URL and click **Add Subscription** to add all its servers directly to the
+VPN list. KDE Plasma's network widget can then connect and disconnect the profile like
+any other VPN.
 
 ### Command line
 
@@ -144,10 +162,10 @@ VLESS even while another client's tunnel is up. To use VLESS only for its own ne
 turn on "Use this connection only for resources on its network" on the IPv4/IPv6 pages
 (`ipv4.never-default yes`).
 
-`nm-vless-proxy-guard.service` runs in the desktop session: while a VLESS connection
-is up and the GNOME system proxy points to a local proxy of another client (for
-example Happ's `127.0.0.1:10809`), it turns the system proxy off and turns it back on
-afterwards. Turn this off with
+On GNOME, `nm-vless-proxy-guard.service` runs in the desktop session: while a VLESS
+connection is up and the GNOME system proxy points to a local proxy of another client
+(for example Happ's `127.0.0.1:10809`), it turns the system proxy off and restores it
+afterwards. KDE Plasma's proxy settings are not managed by this service. Turn it off with
 `systemctl --user disable --now nm-vless-proxy-guard.service`. Details are in
 [docs/architecture.md](docs/architecture.md).
 
@@ -197,11 +215,12 @@ Settings.
 - **Another client's tunnel routes half of the address space** (`0.0.0.0/1`, as
   OpenVPN's `def1` does) with a better metric. A plain default route of another client
   no longer matters. Disconnect or quit the other client.
-- **The system proxy points to another client's local proxy** (for example
+- **On GNOME, the system proxy points to another client's local proxy** (for example
   `127.0.0.1:10809`) and `nm-vless-proxy-guard.service` is not running. Browsers,
   Electron and GNOME applications then talk to that proxy directly. Start the guard
   (`systemctl --user enable --now nm-vless-proxy-guard.service`; it starts by itself
-  after the next login) or turn the proxy off in **Settings → Network → Proxy**.
+  after the next login) or turn the proxy off in **Settings → Network → Proxy**. KDE
+  Plasma proxy settings are not managed by the guard.
   Applications that were already running may keep the old proxy (Claude Desktop, for
   example, passes it to its child processes as `HTTPS_PROXY`), so restart them once.
 - **`HTTP_PROXY`/`HTTPS_PROXY`/`ALL_PROXY` point to a local proxy** in the
@@ -225,8 +244,9 @@ Settings.
 - All traffic goes through the tunnel; split routing is not supported yet.
 - `allowInsecure` (TLS without certificate verification) is intentionally rejected.
 - Encrypted provider links such as `happ://crypt…` are proprietary and cannot be read.
-- The editor needs GTK 4 (GNOME Settings); the GTK 3 `nm-connection-editor` can
-  activate VLESS connections but not edit them.
+- GNOME Settings editing needs GTK 4. KDE Plasma uses `plasma-nm` and a separate Qt
+  editor plugin (Qt 5 for Plasma 5, Qt 6 for Plasma 6 when building from source).
+  The GTK 3 `nm-connection-editor` can activate VLESS connections but not edit them.
 
 ## Roadmap
 
