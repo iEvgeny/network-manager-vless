@@ -75,6 +75,10 @@ build_plasma6_editor = false
 plasma_qt_version = get_option('plasma_qt_version')
 if have_plasma_cpp and have_plasma_c
   libnm_plasma_dep = dependency('libnm', version: '>= 1.24', required: false)
+  # The VPN editor API (VpnUiPlugin and SettingWidget) is exported by plasma-nm
+  # and is not supplied by Qt/KF. Link the module to its provider explicitly;
+  # otherwise Plasma's plugin loader rejects it for unresolved symbols.
+  plasma_nm_editor_dep = meson.get_compiler('cpp').find_library('plasmanm_editor', required: false)
   # CMAKE_PROJECT_INCLUDE is blacklisted by Meson, so use its project-specific
   # equivalent for Meson's generated CMake project (MesonTemp). This also keeps
   # KF5/KF6 generated QCH exports compatible with CMake's CMP0160 policy.
@@ -95,9 +99,10 @@ if have_plasma_cpp and have_plasma_c
     kf5_widgetsaddons_dep = dependency(
       'KF5WidgetsAddons', method: 'cmake', modules: 'KF5::WidgetsAddons',
       cmake_args: kf_cmake_args, required: false)
-    build_plasma5_editor = (libnm_plasma_dep.found() and qt5_widgets_dep.found()
-      and kf5_coreaddons_dep.found() and kf5_i18n_dep.found()
-      and kf5_networkmanagerqt_dep.found() and kf5_widgetsaddons_dep.found())
+    build_plasma5_editor = (libnm_plasma_dep.found() and plasma_nm_editor_dep.found()
+      and qt5_widgets_dep.found() and kf5_coreaddons_dep.found()
+      and kf5_i18n_dep.found() and kf5_networkmanagerqt_dep.found()
+      and kf5_widgetsaddons_dep.found())
   endif
 
   if plasma_qt_version != '5'
@@ -114,15 +119,16 @@ if have_plasma_cpp and have_plasma_c
     kf6_widgetsaddons_dep = dependency(
       'KF6WidgetsAddons', method: 'cmake', modules: 'KF6::WidgetsAddons',
       cmake_args: kf_cmake_args, required: false)
-    build_plasma6_editor = (libnm_plasma_dep.found() and qt6_widgets_dep.found()
-      and kf6_coreaddons_dep.found() and kf6_i18n_dep.found()
-      and kf6_networkmanagerqt_dep.found() and kf6_widgetsaddons_dep.found())
+    build_plasma6_editor = (libnm_plasma_dep.found() and plasma_nm_editor_dep.found()
+      and qt6_widgets_dep.found() and kf6_coreaddons_dep.found()
+      and kf6_i18n_dep.found() and kf6_networkmanagerqt_dep.found()
+      and kf6_widgetsaddons_dep.found())
   endif
 endif
 
 build_plasma_editor = build_plasma5_editor or build_plasma6_editor
 if plasma_editor_opt.enabled() and not build_plasma_editor
-  error('KDE Plasma editor requested but the selected Qt version, libnm and matching KDE Frameworks development files were not found')
+  error('KDE Plasma editor requested but the selected Qt version, libnm, plasma-nm editor library and matching KDE Frameworks development files were not found')
 endif
 if build_plasma_editor
   subdir('src/kde')

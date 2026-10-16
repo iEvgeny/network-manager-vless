@@ -1,3 +1,11 @@
+network-manager-vless (0.5.0-2) unstable; urgency=medium
+
+  * Link the Plasma VPN editor module to plasma-nm's editor library so its
+    VpnUiPlugin and SettingWidget symbols resolve at runtime.
+  * Check the built Plasma plugin for unresolved symbols in CI.
+
+ -- Sevan A. <42666637+s11va9@users.noreply.github.com>  Fri, 16 Oct 2026 20:17:42 +0300
+
 network-manager-vless (0.5.0-1) unstable; urgency=medium
 
   * Split the binary packages into a desktop-independent core and optional GNOME

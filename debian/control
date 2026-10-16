@@ -15,6 +15,7 @@ Build-Depends:
  libkf5i18n-dev,
  libkf5networkmanagerqt-dev,
  libkf5widgetsaddons-dev,
+ plasma-nm,
  libglib2.0-dev (>= 2.70),
  gettext,
  curl,

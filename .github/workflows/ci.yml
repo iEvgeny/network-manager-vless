@@ -42,7 +42,17 @@ jobs:
           .venv/bin/meson install -C build --destdir "$PWD/stage"
           test -x stage/usr/libexec/nm-vless-service
           grep -q '^\[libnm\]' stage/usr/lib/NetworkManager/VPN/nm-vless-service.name
-          find stage/usr/lib -path '*/qt5/plugins/plasma/network/vpn/libplasmanetworkmanagement_vlessui_qt5.so' -print -quit | grep -q .
+          plugin=$(find stage/usr/lib -path '*/qt5/plugins/plasma/network/vpn/libplasmanetworkmanagement_vlessui_qt5.so' -print -quit)
+          test -n "$plugin"
+          readelf -d "$plugin" | grep -q 'NEEDED.*libplasmanm_editor\.so'
+          ldd -r "$plugin" > "$RUNNER_TEMP/plasma5-plugin-ldd.log" 2>&1 || {
+            cat "$RUNNER_TEMP/plasma5-plugin-ldd.log"
+            exit 1
+          }
+          if grep -Eq 'not found|undefined symbol' "$RUNNER_TEMP/plasma5-plugin-ldd.log"; then
+            cat "$RUNNER_TEMP/plasma5-plugin-ldd.log"
+            exit 1
+          fi
 
       - name: Build Debian packages for download (Ubuntu 24.04)
         if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && !startsWith(github.ref, 'refs/tags/')
@@ -107,6 +117,19 @@ jobs:
           kde=$(find dist -maxdepth 1 -name 'network-manager-vless-kde_*.deb' -print -quit)
           test -n "$kde"
           dpkg-deb --contents "$kde" | grep -q 'qt6/plugins/plasma/network/vpn/libplasmanetworkmanagement_vlessui_qt6.so$'
+          tmp=$(mktemp -d)
+          dpkg-deb --extract "$kde" "$tmp"
+          plugin=$(find "$tmp/usr/lib" -path '*/qt6/plugins/plasma/network/vpn/libplasmanetworkmanagement_vlessui_qt6.so' -print -quit)
+          test -n "$plugin"
+          readelf -d "$plugin" | grep -q 'NEEDED.*libplasmanm_editor\.so'
+          ldd -r "$plugin" > "$RUNNER_TEMP/plasma6-plugin-ldd.log" 2>&1 || {
+            cat "$RUNNER_TEMP/plasma6-plugin-ldd.log"
+            exit 1
+          }
+          if grep -Eq 'not found|undefined symbol' "$RUNNER_TEMP/plasma6-plugin-ldd.log"; then
+            cat "$RUNNER_TEMP/plasma6-plugin-ldd.log"
+            exit 1
+          fi
 
       - uses: actions/upload-artifact@v4
         with:

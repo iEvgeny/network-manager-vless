@@ -30,6 +30,7 @@ if build_plasma5_editor
   qt5 = import('qt5')
   plasma5_deps = [
     libnm_plasma_dep,
+    plasma_nm_editor_dep,
     qt5_widgets_dep,
     kf5_coreaddons_dep,
     kf5_i18n_dep,
@@ -56,6 +57,7 @@ if build_plasma6_editor
   qt6 = import('qt6')
   plasma6_deps = [
     libnm_plasma_dep,
+    plasma_nm_editor_dep,
     qt6_widgets_dep,
     kf6_coreaddons_dep,
     kf6_i18n_dep,
