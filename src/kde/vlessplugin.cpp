@@ -23,7 +23,7 @@ K_PLUGIN_CLASS_WITH_JSON(VlessUiPlugin, "plasmanetworkmanagement_vlessui.json")
 VlessUiPlugin::VlessUiPlugin(QObject *parent, const QVariantList &arguments)
     : VpnUiPlugin(parent, arguments)
 {
-    KLocalizedString::setApplicationDomain(QStringLiteral("NetworkManager-vless"));
+    KLocalizedString::setApplicationDomain("NetworkManager-vless");
 }
 
 VlessUiPlugin::~VlessUiPlugin() = default;

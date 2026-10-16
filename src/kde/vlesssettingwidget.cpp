@@ -91,26 +91,26 @@ NetworkManager::VpnSetting::Ptr toQtVpnSetting(NMSettingVpn *setting)
 
     NMStringMap data;
     guint dataCount = 0;
-    char **dataKeys = nm_setting_vpn_get_data_keys(setting, &dataCount);
+    const char **dataKeys = nm_setting_vpn_get_data_keys(setting, &dataCount);
     for (guint i = 0; i < dataCount; ++i) {
         const char *value = nm_setting_vpn_get_data_item(setting, dataKeys[i]);
         if (value) {
             data.insert(QString::fromUtf8(dataKeys[i]), QString::fromUtf8(value));
         }
     }
-    g_strfreev(dataKeys);
+    g_free((gpointer)dataKeys);
     result->setData(data);
 
     NMStringMap secrets;
     guint secretCount = 0;
-    char **secretKeys = nm_setting_vpn_get_secret_keys(setting, &secretCount);
+    const char **secretKeys = nm_setting_vpn_get_secret_keys(setting, &secretCount);
     for (guint i = 0; i < secretCount; ++i) {
         const char *value = nm_setting_vpn_get_secret(setting, secretKeys[i]);
         if (value) {
             secrets.insert(QString::fromUtf8(secretKeys[i]), QString::fromUtf8(value));
         }
     }
-    g_strfreev(secretKeys);
+    g_free((gpointer)secretKeys);
     result->setSecrets(secrets);
     return result;
 }
