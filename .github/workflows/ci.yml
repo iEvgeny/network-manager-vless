@@ -90,7 +90,17 @@ jobs:
             libkf6widgetsaddons-dev
 
       - name: Build Debian packages
-        run: PLASMA_QT_VERSION=6 build-aux/build-deb.sh
+        shell: bash
+        run: |
+          set +e
+          PLASMA_QT_VERSION=6 build-aux/build-deb.sh >"$RUNNER_TEMP/package-build.log" 2>&1
+          status=$?
+          cat "$RUNNER_TEMP/package-build.log"
+          if [ "$status" -ne 0 ]; then
+            failure=$(tail -n 24 "$RUNNER_TEMP/package-build.log" | tr '\n' ' ' | sed 's/%/%25/g; s/\r/%0D/g')
+            echo "::error title=Ubuntu 26.04 package build failed::$failure"
+            exit "$status"
+          fi
 
       - name: Check Plasma 6 package contents
         run: |
