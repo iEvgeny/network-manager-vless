@@ -42,3 +42,15 @@ jobs:
           test -x stage/usr/libexec/nm-vless-service
           grep -q '^\[libnm\]' stage/usr/lib/NetworkManager/VPN/nm-vless-service.name
           find stage/usr/lib -path '*/qt5/plugins/plasma/network/vpn/libplasmanetworkmanagement_vlessui_qt5.so' -print -quit | grep -q .
+
+      - name: Build Debian package for download
+        if: github.event_name == 'push' && !startsWith(github.ref, 'refs/tags/')
+        run: build-aux/build-deb.sh
+
+      - uses: actions/upload-artifact@v4
+        if: github.event_name == 'push' && !startsWith(github.ref, 'refs/tags/')
+        with:
+          name: network-manager-vless-deb-ubuntu-24.04-amd64
+          path: dist/*.deb
+          if-no-files-found: error
+          retention-days: 14
