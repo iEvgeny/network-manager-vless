@@ -23,6 +23,7 @@ public:
 
     QVariantMap setting() const override;
     bool isValid() const override;
+    void loadSecrets(const NetworkManager::Setting::Ptr &setting) override;
 
 private:
     enum class ImportKind {

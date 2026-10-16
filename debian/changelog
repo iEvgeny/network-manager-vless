@@ -1,3 +1,10 @@
+network-manager-vless (0.5.0-3) unstable; urgency=medium
+
+  * Load VPN secrets supplied asynchronously by Plasma-NM into the VLESS editor.
+  * Keep existing profiles valid and editable without exposing the UUID.
+
+ -- Sevan A. <42666637+s11va9@users.noreply.github.com>  Fri, 16 Oct 2026 20:43:35 +0300
+
 network-manager-vless (0.5.0-2) unstable; urgency=medium
 
   * Link the Plasma VPN editor module to plasma-nm's editor library so its

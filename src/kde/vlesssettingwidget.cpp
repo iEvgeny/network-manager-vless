@@ -14,6 +14,7 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QPushButton>
+#include <QSignalBlocker>
 #include <QSpinBox>
 #include <QTabWidget>
 #include <QVBoxLayout>
@@ -372,6 +373,23 @@ void VlessSettingWidget::loadVpnSetting(const NetworkManager::VpnSetting::Ptr &s
     m_ipv6->setChecked(!(ipv6 == QLatin1String("no") || ipv6 == QLatin1String("false")
                          || ipv6 == QLatin1String("0")));
     m_uuidFlags = dataValue(m_originalData, QStringLiteral("uuid-flags"), QStringLiteral("0"));
+}
+
+void VlessSettingWidget::loadSecrets(const NetworkManager::Setting::Ptr &setting)
+{
+    if (!setting) {
+        return;
+    }
+
+    const auto vpnSetting = setting.dynamicCast<NetworkManager::VpnSetting>();
+    if (!vpnSetting) {
+        return;
+    }
+
+    m_originalSecrets = vpnSetting->secrets();
+    const QSignalBlocker blocker(m_uuid);
+    m_uuid->setText(m_originalSecrets.value(QString::fromLatin1(SecretUuid)));
+    slotWidgetChanged();
 }
 
 QVariantMap VlessSettingWidget::setting() const
