@@ -52,4 +52,8 @@ testpaths = ["tests"]
 pythonpath = ["src"]
 addopts = ["-ra", "--strict-markers", "--strict-config"]
 xfail_strict = true
-filterwarnings = ["error"]
+filterwarnings = [
+  "error",
+  # Newer PyGObject emits this while importing GLib; it originates in its overrides.
+  "ignore:GLib\\.unix_signal_add_full is deprecated:DeprecationWarning",
+]
