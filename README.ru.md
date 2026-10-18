@@ -42,18 +42,24 @@ NetworkManager.
 
 ## Установка
 
-Скачайте core-пакет и, если нужен графический редактор, пакет нужного рабочего стола
-из [последнего релиза](../../releases/latest). Выберите пару для своей архитектуры
-(`amd64` — для большинства компьютеров, `arm64` — для ARM):
+Скачайте core-пакет и, если нужен графический редактор, соответствующий UI-пакет
+из [последнего релиза](../../releases/latest). Для сборки, ещё не вошедшей в релиз,
+скачайте артефакт для своей версии Ubuntu в [CI](https://github.com/iEvgeny/network-manager-vless/actions/workflows/ci.yml);
+артефакты хранятся 14 дней. Выберите пакет для своей архитектуры (`amd64` — для
+большинства компьютеров, `arm64` — для ARM). Версии core- и UI-пакета должны совпадать.
 
 ```sh
-# Настройки GNOME
-sudo apt install ./network-manager-vless_0.5.0-1_amd64.deb \
-                 ./network-manager-vless-gnome_0.5.0-1_amd64.deb
+# VERSION должен совпадать с версией в именах скачанных файлов; для ARM укажите ARCH=arm64.
+VERSION=0.5.0-3
+ARCH=amd64
 
-# Или KDE Plasma (релизный пакет Ubuntu 24.04 — для Plasma 5 / Qt 5)
-sudo apt install ./network-manager-vless_0.5.0-1_amd64.deb \
-                 ./network-manager-vless-kde_0.5.0-1_amd64.deb
+# Настройки GNOME
+sudo apt install "./network-manager-vless_${VERSION}_${ARCH}.deb" \
+                 "./network-manager-vless-gnome_${VERSION}_${ARCH}.deb"
+
+# Или KDE Plasma
+sudo apt install "./network-manager-vless_${VERSION}_${ARCH}.deb" \
+                 "./network-manager-vless-kde_${VERSION}_${ARCH}.deb"
 ```
 
 Можно установить только `network-manager-vless`, чтобы получить VPN-службу и инструменты
@@ -150,11 +156,23 @@ nmcli connection modify "Мой сервер" +vpn.data "mtu=1400, dns=9.9.9.9, 
 
 ## Как это работает
 
+```text
+Настройки GNOME / меню сети / nmcli
+                | D-Bus
+                v
+         NetworkManager -- настраивает адреса, маршруты и DNS для TUN
+                | запускает службу для соединения
+                v
+  nm-vless-service (root) -- создаёт TUN-устройство
+                | запускает Xray через setpriv
+                | передаёт fd туннеля как XRAY_TUN_FD
+                v
+       xray (пользователь nm-vless, без прав) -- VLESS --> сервер
+```
+
 Служба узнаёт IP сервера до создания туннеля и сообщает его NetworkManager как адрес
 VPN-шлюза. NetworkManager прокладывает маршрут к этому адресу через физический
-интерфейс, поэтому собственное соединение xray не зацикливается в туннель. Служба
-(root) создаёт TUN-устройство и передаёт его xray, который работает от пользователя
-`nm-vless` без каких-либо привилегий.
+интерфейс, поэтому соединение самого Xray не зацикливается в туннель.
 
 Кроме маршрута по умолчанию туннель получает `0.0.0.0/1` и `128.0.0.0/1` (для IPv6 —
 `::/1` и `8000::/1`). Они точнее любого маршрута по умолчанию, поэтому трафик идёт
@@ -230,7 +248,12 @@ sudo nmcli general logging domains DEFAULT                    # вернуть �
   `nm-vless check` выводит команду `nmcli`, которая исправляет каждое из них;
   подключения из подписок исправит и ближайший `nm-vless subscription update`.
 
-Расшифровку типичных ошибок см. в разделе Troubleshooting [README.md](README.md#troubleshooting).
+| Сообщение | Причина |
+|---|---|
+| `must be owned by root and not writable by others` | У бинарника xray или одного из каталогов в его пути небезопасные права доступа. |
+| `version 26.6.22 or newer is required` | Используется системная версия Xray-core, и она слишком старая. |
+| `xray did not start within 20 seconds` | См. строки `xray:` в журнале. |
+| предупреждение `running xray as root` | Не создан пользователь `nm-vless`: выполните `sudo systemd-sysusers`. |
 
 ## Ограничения
 
@@ -251,7 +274,9 @@ sudo nmcli general logging domains DEFAULT                    # вернуть �
 
 ## Разработка
 
-Сборка из исходников, тесты и выпуск релизов — в [docs/development.md](docs/development.md).
+Сборка из исходников, тесты и выпуск релизов описаны в [docs/development.md](docs/development.md).
+См. также [CONTRIBUTING.md](CONTRIBUTING.md). Об уязвимостях сообщайте приватно,
+согласно [SECURITY.md](SECURITY.md).
 
 ## Лицензия
 

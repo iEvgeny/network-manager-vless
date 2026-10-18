@@ -45,17 +45,23 @@ for any other VPN.
 ## Installation
 
 Download the core package and, if you want a desktop editor, the matching UI package
-from the [latest release](../../releases/latest). Choose the pair for your architecture
-(`amd64` for most PCs, `arm64` for ARM devices):
+from the [latest release](../../releases/latest). For an unreleased build, download the
+matching Ubuntu artifact from the [CI workflow](https://github.com/iEvgeny/network-manager-vless/actions/workflows/ci.yml);
+CI artifacts are kept for 14 days. Choose the pair for your architecture (`amd64` for
+most PCs, `arm64` for ARM devices). The filenames in each pair must have the same version.
 
 ```sh
-# GNOME Settings
-sudo apt install ./network-manager-vless_0.5.0-1_amd64.deb \
-                 ./network-manager-vless-gnome_0.5.0-1_amd64.deb
+# Set VERSION to the version in the downloaded filenames; change ARCH for ARM.
+VERSION=0.5.0-3
+ARCH=amd64
 
-# Or KDE Plasma (the Ubuntu 24.04 release package is for Plasma 5 / Qt 5)
-sudo apt install ./network-manager-vless_0.5.0-1_amd64.deb \
-                 ./network-manager-vless-kde_0.5.0-1_amd64.deb
+# GNOME Settings
+sudo apt install "./network-manager-vless_${VERSION}_${ARCH}.deb" \
+                 "./network-manager-vless-gnome_${VERSION}_${ARCH}.deb"
+
+# Or KDE Plasma
+sudo apt install "./network-manager-vless_${VERSION}_${ARCH}.deb" \
+                 "./network-manager-vless-kde_${VERSION}_${ARCH}.deb"
 ```
 
 Install just `network-manager-vless` for the VPN service and command-line tools without
@@ -155,16 +161,16 @@ All keys are documented in [docs/connection-settings.md](docs/connection-setting
 
 ```text
 GNOME Settings / Quick Settings / nmcli
-                │ D-Bus
-                ▼
-         NetworkManager ──────────── addresses, routes, DNS on the TUN device,
-                │                    route to the server outside the tunnel
-                │ starts per connection
-                ▼
-  nm-vless-service (root) ── creates TUN device ──┐
-                │ spawns via setpriv               │ XRAY_TUN_FD
-                ▼                                  ▼
-       xray (user nm-vless, no capabilities) ──── VLESS ───► server
+                | D-Bus
+                v
+         NetworkManager -- configures TUN addresses, routes and DNS
+                | starts one service per connection
+                v
+  nm-vless-service (root) -- creates TUN device
+                | spawns Xray via setpriv
+                | passes the TUN fd as XRAY_TUN_FD
+                v
+       xray (user nm-vless, no capabilities) -- VLESS --> server
 ```
 
 The service resolves the server before the tunnel exists and reports its address to
