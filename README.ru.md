@@ -160,14 +160,14 @@ nmcli connection modify "Мой сервер" +vpn.data "mtu=1400, dns=9.9.9.9, 
 Настройки GNOME / меню сети / nmcli
                 | D-Bus
                 v
-         NetworkManager -- настраивает адреса, маршруты и DNS для TUN
+         NetworkManager -- адреса, маршруты и DNS на TUN,
+                |          маршрут к серверу вне туннеля
                 | запускает службу для соединения
                 v
-  nm-vless-service (root) -- создаёт TUN-устройство
-                | запускает Xray через setpriv
-                | передаёт fd туннеля как XRAY_TUN_FD
-                v
-       xray (пользователь nm-vless, без прав) -- VLESS --> сервер
+  nm-vless-service (root) -- создаёт TUN -------------+
+                | запускает Xray через setpriv        | XRAY_TUN_FD
+                v                                     v
+       xray (пользователь nm-vless, без прав)---------- VLESS ----> сервер
 ```
 
 Служба узнаёт IP сервера до создания туннеля и сообщает его NetworkManager как адрес

@@ -163,14 +163,14 @@ All keys are documented in [docs/connection-settings.md](docs/connection-setting
 GNOME Settings / Quick Settings / nmcli
                 | D-Bus
                 v
-         NetworkManager -- configures TUN addresses, routes and DNS
-                | starts one service per connection
+         NetworkManager -- addresses, routes and DNS on the TUN device,
+                |          route to the server outside the tunnel
+                | starts per connection
                 v
-  nm-vless-service (root) -- creates TUN device
-                | spawns Xray via setpriv
-                | passes the TUN fd as XRAY_TUN_FD
-                v
-       xray (user nm-vless, no capabilities) -- VLESS --> server
+  nm-vless-service (root) -- creates TUN device ------+
+                | spawns via setpriv                  | XRAY_TUN_FD
+                v                                     v
+       xray (user nm-vless, no capabilities)----------- VLESS ----> server
 ```
 
 The service resolves the server before the tunnel exists and reports its address to
