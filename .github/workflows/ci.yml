@@ -13,56 +13,115 @@ permissions:
 
 jobs:
   check:
-    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - ubuntu: "22.04"
+            codename: jammy
+            runner: ubuntu-22.04
+          - ubuntu: "24.04"
+            codename: noble
+            runner: ubuntu-24.04
+    runs-on: ${{ matrix.runner }}
+    env:
+      UBUNTU_VERSION: ${{ matrix.ubuntu }}
+      UBUNTU_CODENAME: ${{ matrix.codename }}
     steps:
       - uses: actions/checkout@v4
 
       - name: Install build dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get build-dep -y .
+          build-aux/install-build-deps.sh "$UBUNTU_VERSION"
           sudo apt-get install --no-install-recommends -y python3-venv libgtk-4-bin dbus
 
       - name: Lint and type check
         run: make lint typecheck
 
       - name: Build
+        shell: bash
         run: |
-          .venv/bin/meson setup build --prefix=/usr -Deditor=enabled -Dplasma_editor=enabled
-          .venv/bin/meson compile -C build
+          set +e
+          (
+            .venv/bin/meson setup build --prefix=/usr -Deditor=enabled -Dplasma_editor=enabled || exit $?
+            .venv/bin/meson compile -C build || exit $?
+          ) >"$RUNNER_TEMP/meson-build.log" 2>&1
+          status=$?
+          cat "$RUNNER_TEMP/meson-build.log"
+          if [ "$status" -ne 0 ]; then
+            failure=$(tail -n 30 "$RUNNER_TEMP/meson-build.log" | tr '\n' ' ' | sed 's/%/%25/g; s/\r/%0D/g')
+            echo "::error title=Build failed::$failure"
+            exit "$status"
+          fi
 
       - name: Test (editor on a headless Broadway display, pinned Xray-core)
+        shell: bash
         run: |
+          set -e
           build-aux/fetch-xray.sh amd64 "$RUNNER_TEMP/xray"
           gtk4-broadwayd :5 &
+          set +e
           GDK_BACKEND=broadway BROADWAY_DISPLAY=:5 \
           NM_VLESS_TEST_XRAY="$RUNNER_TEMP/xray/xray" \
           NM_VLESS_BUILD_DIR="$PWD/build" \
-            .venv/bin/pytest -ra
-
-      - name: Staged install
-        run: |
-          .venv/bin/meson install -C build --destdir "$PWD/stage"
-          test -x stage/usr/libexec/nm-vless-service
-          grep -q '^\[libnm\]' stage/usr/lib/NetworkManager/VPN/nm-vless-service.name
-          plugin=$(find stage/usr/lib -path '*/qt5/plugins/plasma/network/vpn/libplasmanetworkmanagement_vlessui_qt5.so' -print -quit)
-          test -n "$plugin"
-          readelf -d "$plugin" | grep -q 'NEEDED.*libplasmanm_editor\.so'
-          ldd -r "$plugin" > "$RUNNER_TEMP/plasma5-plugin-ldd.log" 2>&1 || {
-            cat "$RUNNER_TEMP/plasma5-plugin-ldd.log"
-            exit 1
-          }
-          if grep -Eq 'not found|undefined symbol' "$RUNNER_TEMP/plasma5-plugin-ldd.log"; then
-            cat "$RUNNER_TEMP/plasma5-plugin-ldd.log"
-            exit 1
+            .venv/bin/pytest -ra >"$RUNNER_TEMP/pytest.log" 2>&1
+          status=$?
+          cat "$RUNNER_TEMP/pytest.log"
+          if [ "$status" -ne 0 ]; then
+            failure=$(tail -n 30 "$RUNNER_TEMP/pytest.log" | tr '\n' ' ' | sed 's/%/%25/g; s/\r/%0D/g')
+            echo "::error title=Tests failed::$failure"
+            exit "$status"
           fi
 
-      - name: Build Debian packages for download (Ubuntu 24.04)
-        if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && !startsWith(github.ref, 'refs/tags/')
-        run: build-aux/build-deb.sh
+      - name: Staged install
+        shell: bash
+        run: |
+          set +e
+          (
+            .venv/bin/meson install -C build --destdir "$PWD/stage" || exit $?
+            test -x stage/usr/libexec/nm-vless-service || exit $?
+            grep -q '^\[libnm\]' stage/usr/lib/NetworkManager/VPN/nm-vless-service.name || exit $?
+            plugin=$(find stage/usr/lib -path '*/qt5/plugins/plasma/network/vpn/libplasmanetworkmanagement_vlessui_qt5.so' -print -quit)
+            test -n "$plugin" || exit $?
+            readelf -d "$plugin" | grep -q 'NEEDED.*libplasmanm_editor\.so' || exit $?
+            if [ "$UBUNTU_VERSION" = "22.04" ]; then
+              # Jammy's plasma-nm exports these plugin API symbols from the host,
+              # not a separate shared library, so check dependencies without -r.
+              ldd "$plugin" > "$RUNNER_TEMP/plasma5-plugin-ldd.log" 2>&1
+            else
+              ldd -r "$plugin" > "$RUNNER_TEMP/plasma5-plugin-ldd.log" 2>&1
+            fi || {
+              cat "$RUNNER_TEMP/plasma5-plugin-ldd.log"
+              exit 1
+            }
+            if grep -Eq 'not found|undefined symbol' "$RUNNER_TEMP/plasma5-plugin-ldd.log"; then
+              cat "$RUNNER_TEMP/plasma5-plugin-ldd.log"
+              exit 1
+            fi
+          ) >"$RUNNER_TEMP/staged-install.log" 2>&1
+          status=$?
+          cat "$RUNNER_TEMP/staged-install.log"
+          if [ "$status" -ne 0 ]; then
+            failure=$(tail -n 30 "$RUNNER_TEMP/staged-install.log" | tr '\n' ' ' | sed 's/%/%25/g; s/\r/%0D/g')
+            echo "::error title=Staged install failed::$failure"
+            exit "$status"
+          fi
+
+      - name: Build Debian packages for download
+        if: (github.event_name == 'push' || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch') && !startsWith(github.ref, 'refs/tags/')
+        run: |
+          if [ "$UBUNTU_VERSION" = "22.04" ]; then
+            build-aux/build-deb.sh -d
+          else
+            build-aux/build-deb.sh
+          fi
+
+      - name: Add Ubuntu version to package filenames
+        if: (github.event_name == 'push' || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch') && !startsWith(github.ref, 'refs/tags/')
+        run: build-aux/label-deb-assets.sh "$UBUNTU_VERSION" "$UBUNTU_CODENAME"
 
       - name: Check Debian package split and Plasma 5 plugin
-        if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && !startsWith(github.ref, 'refs/tags/')
+        if: (github.event_name == 'push' || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch') && !startsWith(github.ref, 'refs/tags/')
         run: |
           core=$(find dist -maxdepth 1 -name 'network-manager-vless_*.deb' -print -quit)
           gnome=$(find dist -maxdepth 1 -name 'network-manager-vless-gnome_*.deb' -print -quit)
@@ -76,31 +135,26 @@ jobs:
           dpkg-deb --contents "$kde" | grep -q 'qt5/plugins/plasma/network/vpn/libplasmanetworkmanagement_vlessui_qt5.so$'
 
       - uses: actions/upload-artifact@v4
-        if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && !startsWith(github.ref, 'refs/tags/')
+        if: (github.event_name == 'push' || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch') && !startsWith(github.ref, 'refs/tags/')
         with:
-          name: network-manager-vless-deb-ubuntu-24.04-amd64
+          name: network-manager-vless-deb-ubuntu-${{ matrix.ubuntu }}-${{ matrix.codename }}-amd64
           path: dist/*.deb
           if-no-files-found: error
           retention-days: 14
 
   package-26-04:
-    name: Package for Ubuntu 26.04 (Plasma 6)
+    name: Package for Ubuntu 26.04 (Resolute, Plasma 6)
     needs: check
-    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && !startsWith(github.ref, 'refs/tags/')
+    if: (github.event_name == 'push' || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch') && !startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-26.04
+    env:
+      UBUNTU_VERSION: "26.04"
+      UBUNTU_CODENAME: resolute
     steps:
       - uses: actions/checkout@v4
 
       - name: Install build dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get build-dep -y .
-          sudo apt-get install --no-install-recommends -y \
-            qt6-base-dev \
-            libkf6coreaddons-dev \
-            libkf6i18n-dev \
-            libkf6networkmanagerqt-dev \
-            libkf6widgetsaddons-dev
+        run: build-aux/install-build-deps.sh "$UBUNTU_VERSION"
 
       - name: Build Debian packages
         shell: bash
@@ -134,9 +188,12 @@ jobs:
             exit 1
           fi
 
+      - name: Add Ubuntu version to package filenames
+        run: build-aux/label-deb-assets.sh "$UBUNTU_VERSION" "$UBUNTU_CODENAME"
+
       - uses: actions/upload-artifact@v4
         with:
-          name: network-manager-vless-deb-ubuntu-26.04-amd64
+          name: network-manager-vless-deb-ubuntu-26.04-resolute-amd64
           path: dist/*.deb
           if-no-files-found: error
           retention-days: 14

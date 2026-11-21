@@ -21,7 +21,7 @@ Build-Depends:
  curl,
  unzip,
  ca-certificates,
- python3 (>= 3.11),
+ python3 (>= 3.10),
  python3-gi,
  gir1.2-nm-1.0,
  python3-pytest
@@ -34,7 +34,7 @@ Depends:
  ${shlibs:Depends},
  ${misc:Depends},
  network-manager (>= 1.24),
- python3 (>= 3.11),
+ python3 (>= 3.10),
  python3-gi,
  gir1.2-nm-1.0,
  util-linux,

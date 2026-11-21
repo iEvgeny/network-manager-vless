@@ -32,6 +32,7 @@ if build_plasma5_editor
     libnm_plasma_dep,
     plasma_nm_editor_dep,
     qt5_widgets_dep,
+    qt5_dbus_dep,
     kf5_coreaddons_dep,
     kf5_i18n_dep,
     kf5_networkmanagerqt_dep,
