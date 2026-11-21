@@ -1,8 +1,18 @@
 name: Release
 
 on:
+  # Keep tag-push releases working, and also handle releases created in the UI
+  # from a tag that was pushed earlier (which emits no new `push` event).
   push:
     tags: ["v*"]
+  release:
+    types: [published]
+
+# A release created from a tag can produce both events. Serialize uploads so
+# both runs cannot replace the same release assets at the same time.
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
 
 permissions:
   contents: read
@@ -25,10 +35,11 @@ jobs:
           sudo apt-get update
           sudo apt-get build-dep -y .
 
-      - name: Check that the tag matches the package version
+      - name: Check that the tag matches the upstream package version
         run: |
-          version=$(dpkg-parsechangelog --show-field Version)
-          test "v$version" = "$GITHUB_REF_NAME"
+          package_version=$(dpkg-parsechangelog --show-field Version)
+          upstream_version=${package_version%-*}
+          test "v$upstream_version" = "$GITHUB_REF_NAME"
 
       - name: Build the package
         run: build-aux/build-deb.sh
@@ -51,13 +62,23 @@ jobs:
           path: dist
           merge-multiple: true
 
-      - name: Create the GitHub release
+      - name: Attach packages to the published release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          build-aux/release-notes.sh "${GITHUB_REF_NAME#v}" > "$RUNNER_TEMP/notes.md"
+          version=${GITHUB_REF_NAME#v}
+          build-aux/release-notes.sh "$version" > "$RUNNER_TEMP/notes.md"
           cd dist
           sha256sum *.deb > SHA256SUMS
-          gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" \
-            --title "NetworkManager-vless ${GITHUB_REF_NAME#v}" \
-            --notes-file "$RUNNER_TEMP/notes.md" *.deb SHA256SUMS
+          if gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release edit "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" \
+              --title "NetworkManager-vless $version" \
+              --notes-file "$RUNNER_TEMP/notes.md"
+          else
+            gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" \
+              --verify-tag \
+              --title "NetworkManager-vless $version" \
+              --notes-file "$RUNNER_TEMP/notes.md"
+          fi
+          gh release upload "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" \
+            --clobber *.deb SHA256SUMS
