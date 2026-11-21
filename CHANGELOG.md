@@ -6,6 +6,21 @@ and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Added
+
+- KDE Plasma NetworkManager integration: VLESS (Xray) now appears in the Plasma VPN
+  connection editor and can be created, edited, imported from a link, and used with
+  subscriptions. The Qt editor is built for Plasma 5 and/or 6 when the matching KDE
+  Frameworks development files are available.
+
+### Changed
+
+- Split Debian packages into a desktop-independent core, optional GNOME editor and
+  optional KDE Plasma editor. The core only suggests the UI packages, so apt does not
+  automatically install an unused desktop's libraries.
+- Support Python 3.10 and Ubuntu 22.04 Jammy; build Ubuntu-specific packages for every
+  released, supported LTS series.
+
 ## [0.5.0] - 2026-10-03
 
 ### Added

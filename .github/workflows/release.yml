@@ -1,45 +1,86 @@
 name: Release
 
 on:
-  push:
-    tags: ["v*"]
+  # Wait until a release is published, then build each released Ubuntu LTS target once.
+  release:
+    types: [published]
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
 
 permissions:
   contents: read
 
 jobs:
   deb:
+    name: Ubuntu ${{ matrix.ubuntu }} ${{ matrix.codename }} · ${{ matrix.arch }}
     strategy:
       matrix:
         include:
-          - arch: amd64
+          - ubuntu: "22.04"
+            codename: jammy
+            runner: ubuntu-22.04
+            arch: amd64
+            plasma_qt_version: "5"
+          - ubuntu: "22.04"
+            codename: jammy
+            runner: ubuntu-22.04-arm
+            arch: arm64
+            plasma_qt_version: "5"
+          - ubuntu: "24.04"
+            codename: noble
             runner: ubuntu-24.04
-          - arch: arm64
+            arch: amd64
+            plasma_qt_version: "5"
+          - ubuntu: "24.04"
+            codename: noble
             runner: ubuntu-24.04-arm
+            arch: arm64
+            plasma_qt_version: "5"
+          - ubuntu: "26.04"
+            codename: resolute
+            runner: ubuntu-26.04
+            arch: amd64
+            plasma_qt_version: "6"
+          - ubuntu: "26.04"
+            codename: resolute
+            runner: ubuntu-26.04-arm
+            arch: arm64
+            plasma_qt_version: "6"
     runs-on: ${{ matrix.runner }}
+    env:
+      UBUNTU_VERSION: ${{ matrix.ubuntu }}
+      UBUNTU_CODENAME: ${{ matrix.codename }}
+      PLASMA_QT_VERSION: ${{ matrix.plasma_qt_version }}
     steps:
       - uses: actions/checkout@v4
 
       - name: Install build dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get build-dep -y .
+        run: build-aux/install-build-deps.sh "$UBUNTU_VERSION"
 
-      - name: Check that the tag matches the package version
+      - name: Check that the tag matches the upstream package version
         run: |
-          version=$(dpkg-parsechangelog --show-field Version)
-          test "v$version" = "$GITHUB_REF_NAME"
+          package_version=$(dpkg-parsechangelog --show-field Version)
+          upstream_version=${package_version%-*}
+          test "v$upstream_version" = "$GITHUB_REF_NAME"
 
       - name: Build the package
-        run: build-aux/build-deb.sh
+        run: |
+          if [ "$UBUNTU_VERSION" = "22.04" ]; then
+            build-aux/build-deb.sh -d
+          else
+            build-aux/build-deb.sh
+          fi
 
-      - name: Add Ubuntu target before architecture in package filenames
-        run: build-aux/label-deb-assets.sh 24.04 noble
+      - name: Put Ubuntu target before architecture in package filenames
+        run: build-aux/label-deb-assets.sh "$UBUNTU_VERSION" "$UBUNTU_CODENAME"
 
       - uses: actions/upload-artifact@v4
         with:
-          name: deb-ubuntu-24.04-noble-${{ matrix.arch }}
+          name: network-manager-vless-deb-ubuntu-${{ matrix.ubuntu }}-${{ matrix.codename }}-${{ matrix.arch }}
           path: dist/*.deb
+          if-no-files-found: error
 
   publish:
     needs: deb
@@ -54,13 +95,23 @@ jobs:
           path: dist
           merge-multiple: true
 
-      - name: Create the GitHub release
+      - name: Attach Ubuntu-specific packages to the release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          build-aux/release-notes.sh "${GITHUB_REF_NAME#v}" > "$RUNNER_TEMP/notes.md"
+          version=${GITHUB_REF_NAME#v}
+          build-aux/release-notes.sh "$version" > "$RUNNER_TEMP/notes.md"
           cd dist
           sha256sum *.deb > SHA256SUMS
-          gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" \
-            --title "NetworkManager-vless ${GITHUB_REF_NAME#v}" \
-            --notes-file "$RUNNER_TEMP/notes.md" *.deb SHA256SUMS
+          if gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release edit "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" \
+              --title "NetworkManager-vless $version" \
+              --notes-file "$RUNNER_TEMP/notes.md"
+          else
+            gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" \
+              --verify-tag \
+              --title "NetworkManager-vless $version" \
+              --notes-file "$RUNNER_TEMP/notes.md"
+          fi
+          gh release upload "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" \
+            --clobber *.deb SHA256SUMS

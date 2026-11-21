@@ -35,8 +35,9 @@ if user_unit_dir == ''
     default_value: '/usr/lib/systemd/user')
 endif
 
-# ---- GNOME Settings editor (C, GTK 4) -----------------------------------------------------------
+# ---- Desktop connection editors -----------------------------------------------------------------
 
+# GNOME Settings uses libnm's GTK 4 VPN editor API.
 editor_opt = get_option('editor')
 libnm_dep = dependency('libnm', version: '>= 1.24', required: editor_opt)
 gtk4_dep = dependency('gtk4', version: '>= 4.6', required: editor_opt)
@@ -54,6 +55,88 @@ if build_editor
     language: 'c')
   libnm_section = '\n[libnm]\nplugin=' + nm_plugin_dir / 'libnm-vpn-plugin-vless.so\n'
   subdir('src/editor')
+endif
+
+# KDE Plasma's NetworkManager editor has its own Qt/KPlugin API; it does not load
+# NMVpnEditorPlugin. Probe both supported Plasma generations so the same source
+# builds as a Qt 5 plugin on Plasma 5 and a Qt 6 plugin on Plasma 6.
+plasma_editor_opt = get_option('plasma_editor')
+have_plasma_cpp = false
+have_plasma_c = build_editor
+if not plasma_editor_opt.disabled()
+  have_plasma_cpp = add_languages('cpp', required: plasma_editor_opt, native: false)
+  if not have_plasma_c
+    have_plasma_c = add_languages('c', required: plasma_editor_opt, native: false)
+  endif
+endif
+
+build_plasma5_editor = false
+build_plasma6_editor = false
+plasma_qt_version = get_option('plasma_qt_version')
+if have_plasma_cpp and have_plasma_c
+  libnm_plasma_dep = dependency('libnm', version: '>= 1.24', required: false)
+  # The VPN editor API (VpnUiPlugin and SettingWidget) is exported by plasma-nm
+  # and is not supplied by Qt/KF. Link the module to its provider explicitly;
+  # otherwise Plasma's plugin loader rejects it for unresolved symbols.
+  plasma_nm_editor_dep = meson.get_compiler('cpp').find_library('plasmanm_editor', required: false)
+  # CMAKE_PROJECT_INCLUDE is blacklisted by Meson, so use its project-specific
+  # equivalent for Meson's generated CMake project (MesonTemp). This also keeps
+  # KF5/KF6 generated QCH exports compatible with CMake's CMP0160 policy.
+  cmake_policy_include = meson.project_source_root() / 'build-aux' / 'meson-cmake-policy.cmake'
+  kf_cmake_args = ['-DCMAKE_PROJECT_MesonTemp_INCLUDE_BEFORE=' + cmake_policy_include]
+
+  if plasma_qt_version != '6'
+    qt5_widgets_dep = dependency('Qt5Widgets', version: '>= 5.15', required: false)
+    qt5_dbus_dep = dependency('Qt5DBus', version: '>= 5.15', required: false)
+    kf5_coreaddons_dep = dependency(
+      'KF5CoreAddons', method: 'cmake', modules: 'KF5::CoreAddons',
+      cmake_args: kf_cmake_args, required: false)
+    kf5_i18n_dep = dependency(
+      'KF5I18n', method: 'cmake', modules: 'KF5::I18n',
+      cmake_args: kf_cmake_args, required: false)
+    kf5_networkmanagerqt_dep = dependency(
+      'KF5NetworkManagerQt', method: 'cmake', modules: 'KF5::NetworkManagerQt',
+      cmake_args: kf_cmake_args, required: false)
+    kf5_widgetsaddons_dep = dependency(
+      'KF5WidgetsAddons', method: 'cmake', modules: 'KF5::WidgetsAddons',
+      cmake_args: kf_cmake_args, required: false)
+    build_plasma5_editor = (libnm_plasma_dep.found() and plasma_nm_editor_dep.found()
+      and qt5_widgets_dep.found() and qt5_dbus_dep.found() and kf5_coreaddons_dep.found()
+      and kf5_i18n_dep.found() and kf5_networkmanagerqt_dep.found()
+      and kf5_widgetsaddons_dep.found())
+  endif
+
+  if plasma_qt_version != '5'
+    qt6_widgets_dep = dependency('Qt6Widgets', version: '>= 6.4', required: false)
+    kf6_coreaddons_dep = dependency(
+      'KF6CoreAddons', method: 'cmake', modules: 'KF6::CoreAddons',
+      cmake_args: kf_cmake_args, required: false)
+    kf6_i18n_dep = dependency(
+      'KF6I18n', method: 'cmake', modules: 'KF6::I18n',
+      cmake_args: kf_cmake_args, required: false)
+    kf6_networkmanagerqt_dep = dependency(
+      'KF6NetworkManagerQt', method: 'cmake', modules: 'KF6::NetworkManagerQt',
+      cmake_args: kf_cmake_args, required: false)
+    kf6_widgetsaddons_dep = dependency(
+      'KF6WidgetsAddons', method: 'cmake', modules: 'KF6::WidgetsAddons',
+      cmake_args: kf_cmake_args, required: false)
+    build_plasma6_editor = (libnm_plasma_dep.found() and plasma_nm_editor_dep.found()
+      and qt6_widgets_dep.found() and kf6_coreaddons_dep.found()
+      and kf6_i18n_dep.found() and kf6_networkmanagerqt_dep.found()
+      and kf6_widgetsaddons_dep.found())
+  endif
+endif
+
+build_plasma_editor = build_plasma5_editor or build_plasma6_editor
+if plasma_editor_opt.enabled() and not build_plasma_editor
+  error('KDE Plasma editor requested but the selected Qt version, libnm, plasma-nm editor library and matching KDE Frameworks development files were not found')
+endif
+if build_plasma_editor
+  subdir('src/kde')
+endif
+
+# Both editors use the same gettext catalog; compile it if either one is built.
+if build_editor or build_plasma_editor
   subdir('po')
 endif
 
@@ -153,6 +236,8 @@ summary({
   'NetworkManager VPN dir': nm_vpn_dir,
   'GNOME Settings editor': build_editor,
   'libnm plugin dir': build_editor ? nm_plugin_dir : '-',
+  'KDE Plasma 5 editor': build_plasma5_editor,
+  'KDE Plasma 6 editor': build_plasma6_editor,
   'bundled xray': bundled_xray != '' ? bundled_xray_path : 'no (uses /usr/local/bin/xray)',
   'D-Bus policy dir': get_option('dbus_policy_dir'),
   'sysusers.d': sysusers_dir,

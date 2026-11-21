@@ -275,3 +275,247 @@ msgid ""
 "The system proxy {proxy} belongs to another VPN client and would bypass "
 "VLESS. It is turned back on when VLESS disconnects."
 msgstr ""
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "TLS"
+msgstr ""
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "REALITY"
+msgstr ""
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "Chrome"
+msgstr ""
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "Firefox"
+msgstr ""
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "Safari"
+msgstr ""
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "iOS"
+msgstr ""
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "Android"
+msgstr ""
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "Edge"
+msgstr ""
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "360"
+msgstr ""
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "QQ"
+msgstr ""
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "XTLS Vision"
+msgstr ""
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "TCP"
+msgstr ""
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "XHTTP"
+msgstr ""
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "WebSocket"
+msgstr ""
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "HTTPUpgrade"
+msgstr ""
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "gRPC"
+msgstr ""
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "gun"
+msgstr ""
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "multi"
+msgstr ""
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "auto"
+msgstr ""
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "packet-up"
+msgstr ""
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "stream-up"
+msgstr ""
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "stream-one"
+msgstr ""
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "Connection"
+msgstr ""
+
+#: src/kde/vlessplugin.cpp
+msgid "Cannot read the file: %1"
+msgstr ""
+
+#: src/kde/vlessplugin.cpp
+msgid "The file is too large or is not valid UTF-8."
+msgstr ""
+
+#: src/kde/vlessplugin.cpp
+msgid "Cannot use this link: %1"
+msgstr ""
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "Server address"
+msgstr ""
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "Port"
+msgstr ""
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "UUID or VLESS user ID"
+msgstr ""
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "Server name (SNI)"
+msgstr ""
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "TLS fingerprint"
+msgstr ""
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "ALPN"
+msgstr ""
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "Flow"
+msgstr ""
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "REALITY public key"
+msgstr ""
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "REALITY short ID"
+msgstr ""
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "REALITY spider X"
+msgstr ""
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "Network"
+msgstr ""
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "Path"
+msgstr ""
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "Same as the server address"
+msgstr ""
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "HTTP host"
+msgstr ""
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "gRPC service name"
+msgstr ""
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "gRPC mode"
+msgstr ""
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "XHTTP mode"
+msgstr ""
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "JSON object (optional)"
+msgstr ""
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "XHTTP extra settings"
+msgstr ""
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "Tunnel"
+msgstr ""
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "Encryption"
+msgstr ""
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "MTU"
+msgstr ""
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "IPv4 DNS servers"
+msgstr ""
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "IPv6 DNS servers"
+msgstr ""
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "Route IPv6 through the tunnel"
+msgstr ""
+
+#: src/kde/vlessplugin.cpp
+msgid "Invalid VLESS link."
+msgstr ""
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "Enter the VLESS user ID to authenticate this VPN connection."
+msgstr ""
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "Cannot start nm-vless. Check that it is installed."
+msgstr ""
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "nm-vless exited with status %1."
+msgstr ""
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "The link did not contain VLESS settings."
+msgstr ""
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "Invalid subscription response."
+msgstr ""
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "Cannot add the subscription: %1"
+msgstr ""
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "Filled in from “%1”."
+msgstr ""
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "Subscription “%1” added: one server is now in the VPN list and will be updated automatically. You can close this dialog."
+msgstr ""
+
+#: src/kde/vlesssettingwidget.cpp
+msgid "Subscription “%1” added: %2 servers are now in the VPN list and will be updated automatically. You can close this dialog."
+msgstr ""
