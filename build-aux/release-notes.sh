@@ -27,7 +27,8 @@ cat <<NOTES
 
 The release contains packages for every released Ubuntu LTS series currently supported:
 Jammy 22.04, Noble 24.04 and Resolute 26.04. Each package filename includes its target
-Ubuntu series (for example, \`_ubuntu-22.04-jammy.deb\`). Builds are available for both
+Ubuntu series before the architecture (for example, \`_ubuntu-22.04-jammy_amd64.deb\`).
+Builds are available for both
 \`amd64\` and \`arm64\` on all three series. Jammy and Noble use the Plasma 5/Qt 5 editor;
 Resolute uses the Plasma 6/Qt 6/KF6 editor.
 
@@ -38,8 +39,8 @@ one desktop editor. For example, GNOME on Jammy:
 VERSION=${package_version}
 ARCH=amd64
 UBUNTU=22.04-jammy
-sudo apt install "./network-manager-vless_\${VERSION}_\${ARCH}_ubuntu-\${UBUNTU}.deb" \\
-                 "./network-manager-vless-gnome_\${VERSION}_\${ARCH}_ubuntu-\${UBUNTU}.deb"
+sudo apt install "./network-manager-vless_\${VERSION}_ubuntu-\${UBUNTU}_\${ARCH}.deb" \\
+                 "./network-manager-vless-gnome_\${VERSION}_ubuntu-\${UBUNTU}_\${ARCH}.deb"
 \`\`\`
 
 For Noble set \`UBUNTU=24.04-noble\`; for Resolute set \`UBUNTU=26.04-resolute\`. Replace

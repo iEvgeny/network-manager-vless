@@ -57,12 +57,12 @@ ARCH=amd64
 UBUNTU=22.04-jammy # or 24.04-noble / 26.04-resolute
 
 # GNOME Settings
-sudo apt install "./network-manager-vless_${VERSION}_${ARCH}_ubuntu-${UBUNTU}.deb" \
-                 "./network-manager-vless-gnome_${VERSION}_${ARCH}_ubuntu-${UBUNTU}.deb"
+sudo apt install "./network-manager-vless_${VERSION}_ubuntu-${UBUNTU}_${ARCH}.deb" \
+                 "./network-manager-vless-gnome_${VERSION}_ubuntu-${UBUNTU}_${ARCH}.deb"
 
 # Or KDE Plasma
-sudo apt install "./network-manager-vless_${VERSION}_${ARCH}_ubuntu-${UBUNTU}.deb" \
-                 "./network-manager-vless-kde_${VERSION}_${ARCH}_ubuntu-${UBUNTU}.deb"
+sudo apt install "./network-manager-vless_${VERSION}_ubuntu-${UBUNTU}_${ARCH}.deb" \
+                 "./network-manager-vless-kde_${VERSION}_ubuntu-${UBUNTU}_${ARCH}.deb"
 ```
 
 Install just `network-manager-vless` for the VPN service and command-line tools without

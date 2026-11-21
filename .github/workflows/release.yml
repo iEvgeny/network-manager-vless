@@ -73,7 +73,7 @@ jobs:
             build-aux/build-deb.sh
           fi
 
-      - name: Add Ubuntu release to package filenames
+      - name: Put Ubuntu target before architecture in package filenames
         run: build-aux/label-deb-assets.sh "$UBUNTU_VERSION" "$UBUNTU_CODENAME"
 
       - uses: actions/upload-artifact@v4
