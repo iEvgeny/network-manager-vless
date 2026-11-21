@@ -25,34 +25,32 @@ fi
 cat <<NOTES
 ## Installation
 
-The release includes Ubuntu-specific packages. Select files ending in
-\`_ubuntu-24.04.deb\` for Ubuntu 24.04 or \`_ubuntu-26.04.deb\` for Ubuntu 26.04.
-The 24.04 build is available for \`amd64\` and \`arm64\`; the 26.04 build is currently
-available for \`amd64\` only. The Plasma editor is built with Qt 5 on Ubuntu 24.04 and
-Qt 6 on Ubuntu 26.04.
+The release contains packages for every released Ubuntu LTS series currently supported:
+Jammy 22.04, Noble 24.04 and Resolute 26.04. Each package filename includes its target
+Ubuntu series (for example, \`_ubuntu-22.04-jammy.deb\`). Builds are available for both
+\`amd64\` and \`arm64\` on all three series. Jammy and Noble use the Plasma 5/Qt 5 editor;
+Resolute uses the Plasma 6/Qt 6/KF6 editor.
 
-For GNOME on Ubuntu 24.04 (replace \`amd64\` with \`arm64\` on ARM):
-
-\`\`\`sh
-sudo apt install ./network-manager-vless_${package_version}_amd64_ubuntu-24.04.deb \\
-                 ./network-manager-vless-gnome_${package_version}_amd64_ubuntu-24.04.deb
-\`\`\`
-
-For KDE Plasma 5 on Ubuntu 24.04, replace \`-gnome\` with \`-kde\` in the second filename.
-For GNOME on Ubuntu 26.04:
+Choose the appropriate \`UBUNTU\` and \`ARCH\` values, then install the core package and
+one desktop editor. For example, GNOME on Jammy:
 
 \`\`\`sh
-sudo apt install ./network-manager-vless_${package_version}_amd64_ubuntu-26.04.deb \\
-                 ./network-manager-vless-gnome_${package_version}_amd64_ubuntu-26.04.deb
+VERSION=${package_version}
+ARCH=amd64
+UBUNTU=22.04-jammy
+sudo apt install "./network-manager-vless_\${VERSION}_\${ARCH}_ubuntu-\${UBUNTU}.deb" \\
+                 "./network-manager-vless-gnome_\${VERSION}_\${ARCH}_ubuntu-\${UBUNTU}.deb"
 \`\`\`
 
-For KDE Plasma 6 on Ubuntu 26.04, replace \`-gnome\` with \`-kde\` in the second filename.
-Install the core package together with the editor for your desktop.
+For Noble set \`UBUNTU=24.04-noble\`; for Resolute set \`UBUNTU=26.04-resolute\`. Replace
+\`-gnome\` with \`-kde\` in the UI package name for KDE Plasma. Use \`ARCH=arm64\` for ARM
+systems.
 
-Then add a connection in **Settings → Network → VPN → + → VLESS (Xray)**. Ubuntu 24.04
-or newer and other distributions with NetworkManager 1.24+ are supported; see the
-[README]($repo/blob/v${version}/README.md) ([на русском]($repo/blob/v${version}/README.ru.md)).
-If GNOME Settings was open during an update, restart it.
+Then add a connection in **Settings → Network → VPN → + → VLESS (Xray)**. Ubuntu 22.04
+or newer and other distributions with NetworkManager 1.24+ and Python 3.10+ are supported;
+see the [README]($repo/blob/v${version}/README.md)
+([на русском]($repo/blob/v${version}/README.ru.md)). If the desktop settings editor was
+open during an update, restart it.
 
 Verify a download with \`sha256sum -c SHA256SUMS --ignore-missing\`.
 

@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import base64
 import stat
-from datetime import UTC, datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import pytest
@@ -129,7 +129,7 @@ def test_update_interval_from_body_metadata() -> None:
 
 
 def test_is_due() -> None:
-    now = datetime(2026, 9, 28, 12, 0, tzinfo=UTC)
+    now = datetime(2026, 9, 28, 12, 0, tzinfo=timezone.utc)
     sub = Subscription(id="a", url="https://example.com/s", name="A")
     assert sub.is_due(now)  # never updated
 
@@ -143,7 +143,7 @@ def test_is_due() -> None:
 
 
 def test_failed_attempts_wait_for_the_interval() -> None:
-    now = datetime(2026, 9, 28, 12, 0, tzinfo=UTC)
+    now = datetime(2026, 9, 28, 12, 0, tzinfo=timezone.utc)
     sub = Subscription(id="a", url="https://example.com/s", name="A")
     sub.mark_attempted(now - timedelta(hours=1))
     assert not sub.is_due(now)

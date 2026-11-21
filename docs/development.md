@@ -3,10 +3,14 @@
 ## Setup
 
 ```sh
-sudo apt build-dep ./                 # build dependencies from debian/control
+sudo apt build-dep ./                 # build dependencies on Noble/Resolute
 sudo apt install python3-venv libgtk-4-bin
 make venv                             # .venv with --system-site-packages, plus dev tools
 make check                            # ruff, ruff format --check, mypy --strict, pytest
+
+# On Jammy, use the compatibility installer (its archive Meson is too old):
+build-aux/install-build-deps.sh 22.04
+PATH="${TMPDIR:-/tmp}/meson-build-tools/bin:$PATH" build-aux/build-deb.sh -d
 ```
 
 Build and try the plugin:
@@ -25,9 +29,10 @@ split into core, `-gnome` and `-kde`; core only suggests the UIs, so unrelated d
 libraries are not installed by default. The KDE plugin is auto-detected for Qt 5/KF5 and
 Qt 6/KF6; use `-Dplasma_qt_version=5` or `=6` to build only one ABI, or leave it at
 `auto` to build every detected ABI. Use `-Dplasma_editor=enabled` to require a plugin or
-`-Dplasma_editor=disabled` to skip it. Debian's default build includes the Qt 5/KF5 plugin
-on Ubuntu 24.04; the Ubuntu 26.04 CI package sets `PLASMA_QT_VERSION=6` for Plasma 6.
-`build-deb.sh` downloads the Xray-core release pinned in
+`-Dplasma_editor=disabled` to skip it. Jammy and Noble build the Qt 5/KF5 plugin; Resolute
+sets `PLASMA_QT_VERSION=6` for Plasma 6. Jammy uses Python 3.10 and a Meson 1.12 venv because
+its archive Meson is older than this project's minimum. CI and release builds target all three
+released Ubuntu LTS series. `build-deb.sh` downloads the Xray-core release pinned in
 `build-aux/xray.lock` and refuses it if the checksum does not match; set
 `XRAY_ZIP=/path/to/Xray-linux-64.zip` to build offline.
 
@@ -90,7 +95,7 @@ tests/             pytest suite
 
 ## Conventions
 
-- Python 3.11+, fully typed; `mypy --strict` and `ruff` must pass.
+- Python 3.10+, fully typed; `mypy --strict` and `ruff` must pass.
 - C: GLib/GObject style, no warnings with `warning_level=2`, only the factory
   functions exported (`gnu_symbol_visibility: hidden`).
 - Link parsing lives only in Python; the editor calls `nm-vless parse-link`.

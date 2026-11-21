@@ -23,7 +23,7 @@ import urllib.request
 from collections import Counter
 from collections.abc import Mapping
 from dataclasses import asdict, dataclass, field
-from datetime import UTC, datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from http.client import HTTPMessage
 from pathlib import Path
 from typing import IO, Any, Final
@@ -255,10 +255,10 @@ class Subscription:
         return secrets.token_hex(4)
 
     def mark_attempted(self, now: datetime | None = None) -> None:
-        self.last_attempt = (now or datetime.now(UTC)).isoformat(timespec="seconds")
+        self.last_attempt = (now or datetime.now(timezone.utc)).isoformat(timespec="seconds")
 
     def mark_updated(self, parsed: ParsedSubscription, now: datetime | None = None) -> None:
-        now = now or datetime.now(UTC)
+        now = now or datetime.now(timezone.utc)
         self.last_update = now.isoformat(timespec="seconds")
         self.last_attempt = self.last_update
         self.last_error = ""
@@ -279,7 +279,9 @@ class Subscription:
             previous = datetime.fromisoformat(last)
         except ValueError:
             return True
-        return (now or datetime.now(UTC)) - previous >= timedelta(hours=self.update_interval_hours)
+        return (now or datetime.now(timezone.utc)) - previous >= timedelta(
+            hours=self.update_interval_hours
+        )
 
 
 def _default_store_path() -> Path:

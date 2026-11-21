@@ -18,7 +18,7 @@ import shutil
 import subprocess
 import sys
 from collections.abc import Callable, Sequence
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import urlsplit
 
@@ -323,7 +323,7 @@ def cmd_sub_list(args: argparse.Namespace) -> int:
                 str(len(owned_by_subscription(connections, sub.id))),
                 sub.last_update or "never",
                 usage,
-                datetime.fromtimestamp(expire, UTC).date().isoformat() if expire else "",
+                datetime.fromtimestamp(expire, timezone.utc).date().isoformat() if expire else "",
                 "error: " + sub.last_error if sub.last_error else "",
             )
         )

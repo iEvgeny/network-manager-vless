@@ -49,17 +49,18 @@ NetworkManager.
 большинства компьютеров, `arm64` — для ARM). Версии core- и UI-пакета должны совпадать.
 
 ```sh
-# VERSION должен совпадать с версией в именах скачанных файлов; для ARM укажите ARCH=arm64.
-VERSION=0.5.0-3
+# VERSION, ARCH и UBUNTU должны совпадать с именами скачанных файлов.
+VERSION=0.5.0-4
 ARCH=amd64
+UBUNTU=22.04-jammy # или 24.04-noble / 26.04-resolute
 
 # Настройки GNOME
-sudo apt install "./network-manager-vless_${VERSION}_${ARCH}.deb" \
-                 "./network-manager-vless-gnome_${VERSION}_${ARCH}.deb"
+sudo apt install "./network-manager-vless_${VERSION}_${ARCH}_ubuntu-${UBUNTU}.deb" \
+                 "./network-manager-vless-gnome_${VERSION}_${ARCH}_ubuntu-${UBUNTU}.deb"
 
 # Или KDE Plasma
-sudo apt install "./network-manager-vless_${VERSION}_${ARCH}.deb" \
-                 "./network-manager-vless-kde_${VERSION}_${ARCH}.deb"
+sudo apt install "./network-manager-vless_${VERSION}_${ARCH}_ubuntu-${UBUNTU}.deb" \
+                 "./network-manager-vless-kde_${VERSION}_${ARCH}_ubuntu-${UBUNTU}.deb"
 ```
 
 Можно установить только `network-manager-vless`, чтобы получить VPN-службу и инструменты
@@ -69,11 +70,11 @@ core и его зависимости. Пакет GNOME дополнительн
 прокси GNOME.
 
 Всё: NetworkManager сразу видит VPN-службу, перезагрузка и настройка не нужны.
-Поддерживаются Ubuntu 24.04 и новее, а также другие дистрибутивы с NetworkManager 1.24+
-и Python 3.11+. Для пакета GNOME нужен GTK 4.6+; для KDE — `plasma-nm` и совместимые
-библиотеки Qt/KDE Frameworks. Пакет для Ubuntu 24.04 использует плагин Plasma 5/Qt 5;
-артефакт CI для Ubuntu 26.04 содержит только плагин Plasma 6/Qt 6/KF6. CI собирает отдельные
-артефакты для Ubuntu 24.04 и 26.04.
+Поддерживаются выпущенные Ubuntu LTS: 22.04 Jammy, 24.04 Noble и 26.04 Resolute; другим
+дистрибутивам нужны NetworkManager 1.24+ и Python 3.10+. Для пакета GNOME нужен GTK 4.6+;
+для KDE — `plasma-nm` и совместимые библиотеки Qt/KDE Frameworks. В Jammy и Noble плагин
+Plasma 5/Qt 5, в Resolute — Plasma 6/Qt 6/KF6. CI и релиз собирают пакеты отдельно для
+каждой вышедшей LTS-версии Ubuntu.
 
 Если во время установки или обновления были открыты Настройки GNOME или редактор
 сетевых подключений Plasma, закройте и откройте их заново, чтобы загрузить новый плагин.

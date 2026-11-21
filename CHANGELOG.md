@@ -18,6 +18,8 @@ and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.
 - Split Debian packages into a desktop-independent core, optional GNOME editor and
   optional KDE Plasma editor. The core only suggests the UI packages, so apt does not
   automatically install an unused desktop's libraries.
+- Support Python 3.10 and Ubuntu 22.04 Jammy; build Ubuntu-specific packages for every
+  released, supported LTS series.
 
 ## [0.5.0] - 2026-10-03
 

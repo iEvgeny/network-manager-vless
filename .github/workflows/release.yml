@@ -1,8 +1,7 @@
 name: Release
 
 on:
-  # Publish once the release is actually published. The CI workflow is limited
-  # to branch pushes, so pushing a tag does not start a duplicate full test run.
+  # Wait until a release is published, then build each released Ubuntu LTS target once.
   release:
     types: [published]
 
@@ -15,40 +14,50 @@ permissions:
 
 jobs:
   deb:
-    name: Ubuntu ${{ matrix.ubuntu }} · ${{ matrix.arch }}
+    name: Ubuntu ${{ matrix.ubuntu }} ${{ matrix.codename }} · ${{ matrix.arch }}
     strategy:
       matrix:
         include:
+          - ubuntu: "22.04"
+            codename: jammy
+            runner: ubuntu-22.04
+            arch: amd64
+            plasma_qt_version: "5"
+          - ubuntu: "22.04"
+            codename: jammy
+            runner: ubuntu-22.04-arm
+            arch: arm64
+            plasma_qt_version: "5"
           - ubuntu: "24.04"
+            codename: noble
             runner: ubuntu-24.04
             arch: amd64
             plasma_qt_version: "5"
           - ubuntu: "24.04"
+            codename: noble
             runner: ubuntu-24.04-arm
             arch: arm64
             plasma_qt_version: "5"
           - ubuntu: "26.04"
+            codename: resolute
             runner: ubuntu-26.04
             arch: amd64
             plasma_qt_version: "6"
+          - ubuntu: "26.04"
+            codename: resolute
+            runner: ubuntu-26.04-arm
+            arch: arm64
+            plasma_qt_version: "6"
     runs-on: ${{ matrix.runner }}
     env:
+      UBUNTU_VERSION: ${{ matrix.ubuntu }}
+      UBUNTU_CODENAME: ${{ matrix.codename }}
       PLASMA_QT_VERSION: ${{ matrix.plasma_qt_version }}
     steps:
       - uses: actions/checkout@v4
 
       - name: Install build dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get build-dep -y .
-          if [ "$PLASMA_QT_VERSION" = "6" ]; then
-            sudo apt-get install --no-install-recommends -y \
-              qt6-base-dev \
-              libkf6coreaddons-dev \
-              libkf6i18n-dev \
-              libkf6networkmanagerqt-dev \
-              libkf6widgetsaddons-dev
-          fi
+        run: build-aux/install-build-deps.sh "$UBUNTU_VERSION"
 
       - name: Check that the tag matches the upstream package version
         run: |
@@ -57,20 +66,19 @@ jobs:
           test "v$upstream_version" = "$GITHUB_REF_NAME"
 
       - name: Build the package
-        run: build-aux/build-deb.sh
-
-      - name: Add the Ubuntu version to package filenames
-        env:
-          UBUNTU_VERSION: ${{ matrix.ubuntu }}
         run: |
-          for package in dist/*.deb; do
-            mv "$package" "${package%.deb}_ubuntu-${UBUNTU_VERSION}.deb"
-          done
-          ls -1 dist/*.deb
+          if [ "$UBUNTU_VERSION" = "22.04" ]; then
+            build-aux/build-deb.sh -d
+          else
+            build-aux/build-deb.sh
+          fi
+
+      - name: Add Ubuntu release to package filenames
+        run: build-aux/label-deb-assets.sh "$UBUNTU_VERSION" "$UBUNTU_CODENAME"
 
       - uses: actions/upload-artifact@v4
         with:
-          name: network-manager-vless-deb-ubuntu-${{ matrix.ubuntu }}-${{ matrix.arch }}
+          name: network-manager-vless-deb-ubuntu-${{ matrix.ubuntu }}-${{ matrix.codename }}-${{ matrix.arch }}
           path: dist/*.deb
           if-no-files-found: error
 

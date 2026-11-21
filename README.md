@@ -51,17 +51,18 @@ CI artifacts are kept for 14 days. Choose the pair for your architecture (`amd64
 most PCs, `arm64` for ARM devices). The filenames in each pair must have the same version.
 
 ```sh
-# Set VERSION to the version in the downloaded filenames; change ARCH for ARM.
-VERSION=0.5.0-3
+# Match VERSION, ARCH and UBUNTU to the downloaded filenames.
+VERSION=0.5.0-4
 ARCH=amd64
+UBUNTU=22.04-jammy # or 24.04-noble / 26.04-resolute
 
 # GNOME Settings
-sudo apt install "./network-manager-vless_${VERSION}_${ARCH}.deb" \
-                 "./network-manager-vless-gnome_${VERSION}_${ARCH}.deb"
+sudo apt install "./network-manager-vless_${VERSION}_${ARCH}_ubuntu-${UBUNTU}.deb" \
+                 "./network-manager-vless-gnome_${VERSION}_${ARCH}_ubuntu-${UBUNTU}.deb"
 
 # Or KDE Plasma
-sudo apt install "./network-manager-vless_${VERSION}_${ARCH}.deb" \
-                 "./network-manager-vless-kde_${VERSION}_${ARCH}.deb"
+sudo apt install "./network-manager-vless_${VERSION}_${ARCH}_ubuntu-${UBUNTU}.deb" \
+                 "./network-manager-vless-kde_${VERSION}_${ARCH}_ubuntu-${UBUNTU}.deb"
 ```
 
 Install just `network-manager-vless` for the VPN service and command-line tools without
@@ -71,11 +72,11 @@ the core and its runtime dependencies. The GNOME package additionally installs t
 proxy-guard user service.
 
 That is all: NetworkManager picks up the VPN service immediately, no reboot or
-configuration is needed. Supported: Ubuntu 24.04 or newer and other distributions with
-NetworkManager 1.24+ and Python 3.11+. The GNOME package needs GTK 4.6+; the KDE package
-needs `plasma-nm` and the matching Qt/KDE Frameworks runtime. The 24.04 package uses the
-Plasma 5/Qt 5 plugin; the 26.04 CI artifact contains the Qt 6/KF6-only plugin for Plasma 6.
-CI artifacts are built separately for Ubuntu 24.04 and 26.04.
+configuration is needed. Supported Ubuntu LTS releases are 22.04 Jammy, 24.04 Noble and
+26.04 Resolute; other distributions need NetworkManager 1.24+ and Python 3.10+. The GNOME
+package needs GTK 4.6+; the KDE package needs `plasma-nm` and the matching Qt/KDE Frameworks
+runtime. Jammy and Noble use the Plasma 5/Qt 5 plugin; Resolute uses Qt 6/KF6 for Plasma 6.
+Release and CI packages are built separately for each released LTS series.
 
 If GNOME Settings or the Plasma Network Connections editor was open during installation
 or update, close and reopen it so it loads the new editor plugin. GNOME Settings may stay

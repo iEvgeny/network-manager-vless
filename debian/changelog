@@ -1,3 +1,10 @@
+network-manager-vless (0.5.0-4) unstable; urgency=medium
+
+  * Support Python 3.10 and Ubuntu 22.04 Jammy.
+  * Build release packages for every released, supported Ubuntu LTS series.
+
+ -- Sevan A. <42666637+s11va9@users.noreply.github.com>  Sat, 21 Nov 2026 13:12:05 +0000
+
 network-manager-vless (0.5.0-3) unstable; urgency=medium
 
   * Load VPN secrets supplied asynchronously by Plasma-NM into the VLESS editor.
