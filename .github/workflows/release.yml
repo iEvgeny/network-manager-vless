@@ -1,15 +1,11 @@
 name: Release
 
 on:
-  # Keep tag-push releases working, and also handle releases created in the UI
-  # from a tag that was pushed earlier (which emits no new `push` event).
-  push:
-    tags: ["v*"]
+  # Publish once the release is actually published. The CI workflow is limited
+  # to branch pushes, so pushing a tag does not start a duplicate full test run.
   release:
     types: [published]
 
-# A release created from a tag can produce both events. Serialize uploads so
-# both runs cannot replace the same release assets at the same time.
 concurrency:
   group: release-${{ github.ref }}
   cancel-in-progress: false
@@ -19,14 +15,25 @@ permissions:
 
 jobs:
   deb:
+    name: Ubuntu ${{ matrix.ubuntu }} · ${{ matrix.arch }}
     strategy:
       matrix:
         include:
-          - arch: amd64
+          - ubuntu: "24.04"
             runner: ubuntu-24.04
-          - arch: arm64
+            arch: amd64
+            plasma_qt_version: "5"
+          - ubuntu: "24.04"
             runner: ubuntu-24.04-arm
+            arch: arm64
+            plasma_qt_version: "5"
+          - ubuntu: "26.04"
+            runner: ubuntu-26.04
+            arch: amd64
+            plasma_qt_version: "6"
     runs-on: ${{ matrix.runner }}
+    env:
+      PLASMA_QT_VERSION: ${{ matrix.plasma_qt_version }}
     steps:
       - uses: actions/checkout@v4
 
@@ -34,6 +41,14 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get build-dep -y .
+          if [ "$PLASMA_QT_VERSION" = "6" ]; then
+            sudo apt-get install --no-install-recommends -y \
+              qt6-base-dev \
+              libkf6coreaddons-dev \
+              libkf6i18n-dev \
+              libkf6networkmanagerqt-dev \
+              libkf6widgetsaddons-dev
+          fi
 
       - name: Check that the tag matches the upstream package version
         run: |
@@ -44,10 +59,20 @@ jobs:
       - name: Build the package
         run: build-aux/build-deb.sh
 
+      - name: Add the Ubuntu version to package filenames
+        env:
+          UBUNTU_VERSION: ${{ matrix.ubuntu }}
+        run: |
+          for package in dist/*.deb; do
+            mv "$package" "${package%.deb}_ubuntu-${UBUNTU_VERSION}.deb"
+          done
+          ls -1 dist/*.deb
+
       - uses: actions/upload-artifact@v4
         with:
-          name: deb-${{ matrix.arch }}
+          name: network-manager-vless-deb-ubuntu-${{ matrix.ubuntu }}-${{ matrix.arch }}
           path: dist/*.deb
+          if-no-files-found: error
 
   publish:
     needs: deb
@@ -62,7 +87,7 @@ jobs:
           path: dist
           merge-multiple: true
 
-      - name: Attach packages to the published release
+      - name: Attach Ubuntu-specific packages to the release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
