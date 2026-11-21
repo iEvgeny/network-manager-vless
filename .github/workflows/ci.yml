@@ -84,7 +84,13 @@ jobs:
             plugin=$(find stage/usr/lib -path '*/qt5/plugins/plasma/network/vpn/libplasmanetworkmanagement_vlessui_qt5.so' -print -quit)
             test -n "$plugin" || exit $?
             readelf -d "$plugin" | grep -q 'NEEDED.*libplasmanm_editor\.so' || exit $?
-            ldd -r "$plugin" > "$RUNNER_TEMP/plasma5-plugin-ldd.log" 2>&1 || {
+            if [ "$UBUNTU_VERSION" = "22.04" ]; then
+              # Jammy's plasma-nm exports these plugin API symbols from the host,
+              # not a separate shared library, so check dependencies without -r.
+              ldd "$plugin" > "$RUNNER_TEMP/plasma5-plugin-ldd.log" 2>&1
+            else
+              ldd -r "$plugin" > "$RUNNER_TEMP/plasma5-plugin-ldd.log" 2>&1
+            fi || {
               cat "$RUNNER_TEMP/plasma5-plugin-ldd.log"
               exit 1
             }
