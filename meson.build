@@ -87,6 +87,7 @@ if have_plasma_cpp and have_plasma_c
 
   if plasma_qt_version != '6'
     qt5_widgets_dep = dependency('Qt5Widgets', version: '>= 5.15', required: false)
+    qt5_dbus_dep = dependency('Qt5DBus', version: '>= 5.15', required: false)
     kf5_coreaddons_dep = dependency(
       'KF5CoreAddons', method: 'cmake', modules: 'KF5::CoreAddons',
       cmake_args: kf_cmake_args, required: false)
@@ -100,7 +101,7 @@ if have_plasma_cpp and have_plasma_c
       'KF5WidgetsAddons', method: 'cmake', modules: 'KF5::WidgetsAddons',
       cmake_args: kf_cmake_args, required: false)
     build_plasma5_editor = (libnm_plasma_dep.found() and plasma_nm_editor_dep.found()
-      and qt5_widgets_dep.found() and kf5_coreaddons_dep.found()
+      and qt5_widgets_dep.found() and qt5_dbus_dep.found() and kf5_coreaddons_dep.found()
       and kf5_i18n_dep.found() and kf5_networkmanagerqt_dep.found()
       and kf5_widgetsaddons_dep.found())
   endif
