@@ -56,4 +56,6 @@ filterwarnings = [
   "error",
   # Newer PyGObject emits this while importing GLib; it originates in its overrides.
   "ignore:GLib\\.unix_signal_add_full is deprecated:DeprecationWarning",
+  # Jammy's PyGObject importer uses the legacy loader protocol on Python 3.10.
+  "ignore:DynamicImporter\\.exec_module:ImportWarning",
 ]
