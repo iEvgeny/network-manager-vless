@@ -44,7 +44,7 @@ devices) and open it: on Ubuntu, double-clicking a `.deb` opens it in App Center
 Alternatively, install it from a terminal, which also installs the dependencies:
 
 ```sh
-sudo apt install ./network-manager-vless_0.5.0_amd64.deb
+sudo apt install ./network-manager-vless_0.5.0_ubuntu-24.04-noble_amd64.deb
 ```
 
 That is all: NetworkManager picks up the plugin immediately, no reboot or

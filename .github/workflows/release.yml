@@ -33,9 +33,12 @@ jobs:
       - name: Build the package
         run: build-aux/build-deb.sh
 
+      - name: Add Ubuntu target before architecture in package filenames
+        run: build-aux/label-deb-assets.sh 24.04 noble
+
       - uses: actions/upload-artifact@v4
         with:
-          name: deb-${{ matrix.arch }}
+          name: deb-ubuntu-24.04-noble-${{ matrix.arch }}
           path: dist/*.deb
 
   publish:

@@ -24,11 +24,11 @@ fi
 cat <<NOTES
 ## Installation
 
-Download the package for your architecture below (\`amd64\` for most PCs, \`arm64\`
-for ARM devices) and open it, or install it from a terminal:
+Download the package for Ubuntu 24.04 (Noble) and your architecture below (\`amd64\`
+for most PCs, \`arm64\` for ARM devices) and open it, or install it from a terminal:
 
 \`\`\`sh
-sudo apt install ./network-manager-vless_${version}_amd64.deb
+sudo apt install ./network-manager-vless_${version}_ubuntu-24.04-noble_amd64.deb
 \`\`\`
 
 Then add a connection in **Settings → Network → VPN → + → VLESS (Xray)**. Ubuntu 24.04

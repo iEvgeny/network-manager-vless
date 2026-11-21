@@ -44,7 +44,7 @@ GNOME, включаются в шторке рядом с Wi-Fi и управл�
 зависимости подтянутся сами:
 
 ```sh
-sudo apt install ./network-manager-vless_0.5.0_amd64.deb
+sudo apt install ./network-manager-vless_0.5.0_ubuntu-24.04-noble_amd64.deb
 ```
 
 Всё: NetworkManager сразу видит плагин, перезагрузка и настройка не нужны.
