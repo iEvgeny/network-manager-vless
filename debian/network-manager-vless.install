@@ -1,0 +1,13 @@
+usr/bin/nm-vless
+usr/lib/NetworkManager/VPN/nm-vless-service.name
+usr/lib/*/NetworkManager/libnm-vpn-plugin-vless.so
+usr/lib/systemd/user/nm-vless-subscriptions.service
+usr/lib/systemd/user/nm-vless-subscriptions.timer
+usr/lib/sysusers.d/nm-vless.conf
+usr/libexec/nm-vless-auth-dialog
+usr/libexec/nm-vless-service
+usr/libexec/nm-vless
+usr/share/dbus-1/system.d/nm-vless-service.conf
+usr/share/doc/network-manager-vless
+usr/share/locale/*/LC_MESSAGES/NetworkManager-vless.mo
+usr/share/nm-vless

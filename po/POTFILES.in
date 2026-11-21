@@ -1,4 +1,6 @@
-# Files with translatable strings (GNOME Settings editor).
+# Files with translatable strings (GNOME Settings and KDE Plasma editors).
+src/kde/vlessplugin.cpp
+src/kde/vlesssettingwidget.cpp
 src/editor/nm-vless-dialog.ui
 src/editor/nm-vless-editor-plugin.c
 src/editor/nm-vless-editor.c
