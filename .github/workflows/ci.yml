@@ -55,13 +55,23 @@ jobs:
           fi
 
       - name: Test (editor on a headless Broadway display, pinned Xray-core)
+        shell: bash
         run: |
+          set -e
           build-aux/fetch-xray.sh amd64 "$RUNNER_TEMP/xray"
           gtk4-broadwayd :5 &
+          set +e
           GDK_BACKEND=broadway BROADWAY_DISPLAY=:5 \
           NM_VLESS_TEST_XRAY="$RUNNER_TEMP/xray/xray" \
           NM_VLESS_BUILD_DIR="$PWD/build" \
-            .venv/bin/pytest -ra
+            .venv/bin/pytest -ra >"$RUNNER_TEMP/pytest.log" 2>&1
+          status=$?
+          cat "$RUNNER_TEMP/pytest.log"
+          if [ "$status" -ne 0 ]; then
+            failure=$(tail -n 30 "$RUNNER_TEMP/pytest.log" | tr '\n' ' ' | sed 's/%/%25/g; s/\r/%0D/g')
+            echo "::error title=Tests failed::$failure"
+            exit "$status"
+          fi
 
       - name: Staged install
         run: |
