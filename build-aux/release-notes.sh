@@ -8,8 +8,9 @@
 set -eu
 
 version=${1:?usage: $0 VERSION}
-repo=https://github.com/${GITHUB_REPOSITORY:-s11va9/network-manager-vless}
+repo=https://github.com/${GITHUB_REPOSITORY:-iEvgeny/network-manager-vless}
 src=$(cd "$(dirname "$0")/.." && pwd)
+package_version=$(dpkg-parsechangelog --file "$src/debian/changelog" --show-field Version)
 
 changes=$(awk -v heading="## [$version]" '
     index($0, heading) == 1 { found = 1; next }
@@ -24,12 +25,29 @@ fi
 cat <<NOTES
 ## Installation
 
-Download the package for your architecture below (\`amd64\` for most PCs, \`arm64\`
-for ARM devices) and open it, or install it from a terminal:
+The release includes Ubuntu-specific packages. Select files ending in
+\`_ubuntu-24.04.deb\` for Ubuntu 24.04 or \`_ubuntu-26.04.deb\` for Ubuntu 26.04.
+The 24.04 build is available for \`amd64\` and \`arm64\`; the 26.04 build is currently
+available for \`amd64\` only. The Plasma editor is built with Qt 5 on Ubuntu 24.04 and
+Qt 6 on Ubuntu 26.04.
+
+For GNOME on Ubuntu 24.04 (replace \`amd64\` with \`arm64\` on ARM):
 
 \`\`\`sh
-sudo apt install ./network-manager-vless_${version}_amd64.deb
+sudo apt install ./network-manager-vless_${package_version}_amd64_ubuntu-24.04.deb \\
+                 ./network-manager-vless-gnome_${package_version}_amd64_ubuntu-24.04.deb
 \`\`\`
+
+For KDE Plasma 5 on Ubuntu 24.04, replace \`-gnome\` with \`-kde\` in the second filename.
+For GNOME on Ubuntu 26.04:
+
+\`\`\`sh
+sudo apt install ./network-manager-vless_${package_version}_amd64_ubuntu-26.04.deb \\
+                 ./network-manager-vless-gnome_${package_version}_amd64_ubuntu-26.04.deb
+\`\`\`
+
+For KDE Plasma 6 on Ubuntu 26.04, replace \`-gnome\` with \`-kde\` in the second filename.
+Install the core package together with the editor for your desktop.
 
 Then add a connection in **Settings → Network → VPN → + → VLESS (Xray)**. Ubuntu 24.04
 or newer and other distributions with NetworkManager 1.24+ are supported; see the

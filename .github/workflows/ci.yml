@@ -1,7 +1,10 @@
 name: CI
 
 on:
+  # Tag pushes are handled by the release workflow; avoid running the full CI
+  # suite a second time for the same release.
   push:
+    branches: ["**"]
   pull_request:
 
 permissions:
