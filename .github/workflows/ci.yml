@@ -74,20 +74,31 @@ jobs:
           fi
 
       - name: Staged install
+        shell: bash
         run: |
-          .venv/bin/meson install -C build --destdir "$PWD/stage"
-          test -x stage/usr/libexec/nm-vless-service
-          grep -q '^\[libnm\]' stage/usr/lib/NetworkManager/VPN/nm-vless-service.name
-          plugin=$(find stage/usr/lib -path '*/qt5/plugins/plasma/network/vpn/libplasmanetworkmanagement_vlessui_qt5.so' -print -quit)
-          test -n "$plugin"
-          readelf -d "$plugin" | grep -q 'NEEDED.*libplasmanm_editor\.so'
-          ldd -r "$plugin" > "$RUNNER_TEMP/plasma5-plugin-ldd.log" 2>&1 || {
-            cat "$RUNNER_TEMP/plasma5-plugin-ldd.log"
-            exit 1
-          }
-          if grep -Eq 'not found|undefined symbol' "$RUNNER_TEMP/plasma5-plugin-ldd.log"; then
-            cat "$RUNNER_TEMP/plasma5-plugin-ldd.log"
-            exit 1
+          set +e
+          (
+            .venv/bin/meson install -C build --destdir "$PWD/stage" || exit $?
+            test -x stage/usr/libexec/nm-vless-service || exit $?
+            grep -q '^\[libnm\]' stage/usr/lib/NetworkManager/VPN/nm-vless-service.name || exit $?
+            plugin=$(find stage/usr/lib -path '*/qt5/plugins/plasma/network/vpn/libplasmanetworkmanagement_vlessui_qt5.so' -print -quit)
+            test -n "$plugin" || exit $?
+            readelf -d "$plugin" | grep -q 'NEEDED.*libplasmanm_editor\.so' || exit $?
+            ldd -r "$plugin" > "$RUNNER_TEMP/plasma5-plugin-ldd.log" 2>&1 || {
+              cat "$RUNNER_TEMP/plasma5-plugin-ldd.log"
+              exit 1
+            }
+            if grep -Eq 'not found|undefined symbol' "$RUNNER_TEMP/plasma5-plugin-ldd.log"; then
+              cat "$RUNNER_TEMP/plasma5-plugin-ldd.log"
+              exit 1
+            fi
+          ) >"$RUNNER_TEMP/staged-install.log" 2>&1
+          status=$?
+          cat "$RUNNER_TEMP/staged-install.log"
+          if [ "$status" -ne 0 ]; then
+            failure=$(tail -n 30 "$RUNNER_TEMP/staged-install.log" | tr '\n' ' ' | sed 's/%/%25/g; s/\r/%0D/g')
+            echo "::error title=Staged install failed::$failure"
+            exit "$status"
           fi
 
       - name: Build Debian packages for download
